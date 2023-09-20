@@ -1,0 +1,63 @@
+.navbar-custom .container-fluid{
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: start;
+}
+.list-unstyled.topnav-menu.first{
+    display: flex;
+    margin: auto;
+    left: 0;
+    position: absolute;
+}
+.content-page {
+    margin-right: 240px;
+    margin-left: 0px;
+}
+body[data-sidebar-size=condensed] .content-page {
+    margin-left: 0px !important;
+    margin-right: 70px !important;
+}
+#sidebar-menu{
+    text-align: start;
+}
+#sidebar-menu > ul > li > a svg {
+    margin-left: 10px;
+    margin-right: 3px;
+}
+
+.page-title-box{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row-reverse;
+}
+.text-sm-right{
+text-align: end !important;
+}
+table{
+    text-align: start;
+}
+.form-group {
+    text-align: start;
+}
+ .breadcrumb-item + .breadcrumb-item::before {
+    display: inline-block;
+    padding-left: 0.5rem;
+    color: #ced4da;
+    content: "\F0142";
+    transform: rotate(180deg);
+}
+.text-right{
+    text-align: left !important;
+}
+span.menu-arrow {
+    left: 10px;
+    right: unset;
+    transform: rotate(180deg);
+}
+#sidebar-menu > ul > li ul {
+    padding-left: unset;
+    padding-right: 35px;
+}
+.cost-shop{
+    flex-direction: row-reverse;
+}

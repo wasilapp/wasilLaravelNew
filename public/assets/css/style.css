@@ -1,0 +1,19 @@
+
+#statu{
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+}
+#statu > a{
+    padding: .5rem 1rem;
+    margin: 1rem;
+    border: 1px solid #05c98b;
+}
+#statu > a.active,
+#statu > a:hover{
+    background-color: #05c98b;
+    color: #fff
+}
+.card-body {
+    text-align: start;
+}
