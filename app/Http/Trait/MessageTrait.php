@@ -28,7 +28,32 @@ trait MessageTrait
                 $key => $data,
                 'status' => true,
                 'stateNum' => '200',
-                'msg' => trans('message.done-success')
+                'message' => trans('message.done-success')
+            ]
+        )->header('Access-Control-Allow-Origin', '*')
+            ->header('Access-Control-Allow-Methods', '*');
+    }
+
+    public function returnDataMessage($key, $data,$msg): JsonResponse
+    {
+        return response()->json(
+            [
+                $key => $data,
+                'status' => true,
+                'stateNum' => '200',
+                'message' => $msg
+            ]
+        )->header('Access-Control-Allow-Origin', '*')
+            ->header('Access-Control-Allow-Methods', '*');
+    }
+
+    public function returnMessage($msg,$code): JsonResponse
+    {
+        return response()->json(
+            [
+                'status' => true,
+                'stateNum' => $code,
+                'message' => $msg
             ]
         )->header('Access-Control-Allow-Origin', '*')
             ->header('Access-Control-Allow-Methods', '*');
@@ -40,13 +65,13 @@ trait MessageTrait
             [
                 'status' => false,
                 'stateNum' => $stateNum,
-                'msg' => $msg
+                'message' => $msg
             ])->header('Access-Control-Allow-Origin', '*')
             ->header('Access-Control-Allow-Methods', '*');
     }
 
      public function errorResponse($message, int $code = ResponseAlias::HTTP_BAD_REQUEST): JsonResponse
     {
-        return response()->json(['error' => $message], $code);
+        return response()->json(['error' => $message,'stateNum'=>$code], $code);
     }
 }

@@ -113,7 +113,7 @@ return [
     'starts_with' => 'يجب أن يبدأ الحقل :attribute بأحد القيم التالية: :values.',
     'string' => 'يجب أن يكون الحقل :attribute نصًا.',
     'timezone' => 'يجب أن يكون الحقل :attribute منطقة زمنية صالحة.',
-    'unique' => 'الحقل :attribute تم أخذه بالفعل.',
+    'unique' => 'الحقل :attribute موجود مسبقاً.',
     'uploaded' => 'فشل في تحميل الحقل :attribute.',
     'url' => 'شكل الحقل :attribute غير صالح.',
     'uuid' => 'يجب أن يكون الحقل :attribute UUID صالحًا.',

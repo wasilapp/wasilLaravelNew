@@ -16,13 +16,13 @@ return new class extends Migration
         Schema::create('shops', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
-            $table->string('email')->unique();
-            $table->string('mobile')->unique();
+            $table->string('email')->nullable();
+            $table->string('mobile')->nullable();
             $table->string('barcode')->unique();
             $table->double('latitude');
             $table->double('longitude');
             $table->string('address');
-            $table->string('image_url');
+            $table->string('image_url')->nullable();
             $table->double('rating')->default(0);
             $table->integer('delivery_range');
             $table->integer('total_rating')->default(0);
@@ -31,6 +31,7 @@ return new class extends Migration
             $table->boolean('open')->default(false);
             $table->unsignedBigInteger('manager_id')->nullable();
             $table->unsignedBigInteger('category_id')->nullable()->index('shops_category_id_foreign');
+            $table->integer('distance')->default(5000);
             $table->timestamps();
         });
     }

@@ -24,6 +24,9 @@ return new class extends Migration
             $table->string('fcm_token')->nullable();
             $table->string('avatar_url')->nullable();
             $table->boolean('blocked')->default(false);
+            $table->boolean('account_type')->default(0);
+            $table->boolean('default')->default(false);
+            $table->string('referrer')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

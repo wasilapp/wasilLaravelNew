@@ -15,8 +15,11 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreRequest;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\SubCategory;
 use Illuminate\Support\Facades\Hash;
 use ArielMejiaDev\LarapexCharts\LarapexChart;
+
+use function Ramsey\Uuid\v1;
 
 class ShopController extends Controller
 {
@@ -27,18 +30,23 @@ class ShopController extends Controller
     private $shopRevenue;
     private $category;
     private $shopReview;
-    public function __construct(Shop $shop, Manager $manager,ShopRevenue $shopRevenue,Category $category,ShopReview $shopReview)
+    private $subCategory;
+    public function __construct(Shop $shop, Manager $manager,ShopRevenue $shopRevenue,Category $category,ShopReview $shopReview,SubCategory $subCategory)
     {
         $this->shop = $shop;
         $this->manager = $manager;
         $this->shopRevenue = $shopRevenue;
         $this->category = $category;
         $this->shopReview = $shopReview;
+        $this->subCategory = $subCategory;
     }
     public function index()
     {
 
-        $shops = $this->shop->with('manager')->paginate(10);
+        $shops = $this->shop->with('manager')
+        ->whereHas('manager', function ($query) {
+                    $query->where('is_approval', 1);
+                })->paginate(10);
 
         foreach ($shops as $shop) {
             $productsCount = 0;
@@ -75,30 +83,28 @@ class ShopController extends Controller
                 if ($request->admin['avatar_url']) {
                     $avatar_url_path  =  $this->upload($request->admin['avatar_url'],'managers');
                 }
+                if ($request->admin['license']) {
+                    $license_path  =  $this->upload($request->admin['license'],'managers');
+                }
                 $manger_data = [
                     'name' => [
                         'en' => $request->admin['name']['en'],
                         'ar' => $request->admin['name']['ar']
                     ],
                     'avatar_url' => $avatar_url_path,
+                    'license' => $license_path,
                     'email' => $request->admin['email'],
                     'password' => Hash::make($request->admin['password']),
                     'mobile' => $request->admin['mobile'],
-                    'mobile_verified' => 1,
+                    'is_approval' => 1,
                 ];
                 $manager = $this->manager->create($manger_data);
-            }
-            if ($request->shop['image']) {
-                $path  =  $this->upload($request->shop['image'],'shops');
             }
             $data = [
                 'name' => [
                     'en' => $request->shop['name']['en'],
                     'ar' => $request->shop['name']['ar']
                 ],
-                'image_url' => $path,
-                'email' => $request->shop['email'],
-                'mobile' => $request->shop['mobile'],
                 'category_id' => $request->shop['category'],
                 'address' => $request->address,
                 'latitude' => $request->latitude,
@@ -128,14 +134,16 @@ class ShopController extends Controller
         }catch(\Exception $e){
             Log::info($e->getMessage());
             DB::rollBack();
-            return redirect()->route('admin.shops.index')->with(['error' => 'Something wrong']);
+            // return $e->getMessage();
+            return redirect()->route('admin.shops.create')->with(['error' => 'Something wrong']);
         }
-
     }
 
     public function show($id)
     {
         $shop = $this->shop->with('manager')->find($id);
+        $shopSubcategories = $shop->subCategory;
+
         $available_managers = $this->manager->doesnthave('shop')->get();
         if ($shop) {
             $shopRevenues = $this->shopRevenue->where('shop_id', '=', $shop->id)->get();
@@ -204,7 +212,8 @@ class ShopController extends Controller
                 'total_weekly_orders' => $totalWeeklyOrders,
                 'total_weekly_revenue' => $totalWeeklyRevenue,
                 'shop' => $shop,
-                'available_managers' => $available_managers
+                'available_managers' => $available_managers,
+                'shopSubcategories' => $shopSubcategories
             ]);
         } else {
             return view('manager.error-page')->with([
@@ -220,16 +229,23 @@ class ShopController extends Controller
     public function edit($id)
     {
         $shop = $this->shop->with('manager')->find($id);
+        $shopSubcategories = $shop->subCategory;
+        $subcategories = $this->subCategory->where('category_id', $shop->category_id )->where('is_approval', 1)->get();
+        //dd($subcategories );
         $available_managers = $this->manager->doesnthave('shop')->get();
         return view('admin.shops.edit-shop')->with([
             'shop' => $shop,
             'available_managers' => $available_managers,
+            'subcategories' => $subcategories,
+            'shopSubcategories' => $shopSubcategories,
         ]);
-    }
+
+    } 
 
 
-    public function update(ShopRequest $request)
+    public function update(Request $request)
     {
+       // dd($request->all());
         $shop = $this->shop->findorFail($request->id);
         $manager = $this->manager->findorFail($shop->manager->id);
         try {
@@ -242,33 +258,28 @@ class ShopController extends Controller
                     ],
                     'email' => $request->manager['email'],
                     'mobile' => $request->manager['mobile'],
-                    'mobile_verified' => 1,
+                    'is_approval' => 1,
                 ];
                 if (isset($request->manager['avatar_url'])) {
                     $newAvatar_url = $this->updateImage($shop->manager->avatar_url,$request->manager['avatar_url'],'managers');
                     $manger_data['avatar_url']= $newAvatar_url;
                 }
+                if (isset($request->manager['license'])) {
+                    $newLicense_url = $this->updateImage($shop->manager->license,$request->manager['license'],'managers');
+                    $manger_data['license']= $newLicense_url;
+                }
                 if ($request->manager['password']) {
                     $manger_data['password']= Hash::make($request->admin['password']);
                 }
 
-                $newmanager = $manager->update($manger_data);
-                //$newmanager2 = Manager::findorFail($shop->manager->id);
-               // dd($newmanager2);
+                $manager->update($manger_data);
             }
 
-           /// dd($request->shop);
-            
-            /* if ($request->shop['image']) {
-                $path  =  $this->upload($request->shop['image'],'shops');
-            } */
             $data = [
                 'name' => [
                     'en' => $request->shop['name']['en'],
                     'ar' => $request->shop['name']['ar']
                 ],
-                'email' => $request->shop['email'],
-                'mobile' => $request->shop['mobile'],
                 'address' => $request->address,
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
@@ -276,13 +287,7 @@ class ShopController extends Controller
                 'delivery_range' => $request->delivery_range,
                 'manager_id' => $manager->id
             ];
-            //dd($request->all());
-            if (isset($request->shop['image'])) {
-                $newAvatar_url = $this->updateImage($shop->image,$request->shop['image'],'shops');
-                $data['image_url']= $newAvatar_url;
-            }
-            
-           
+
             $number = $this->generateBarcodeNumber();
             $data['barcode'] = $number;
 
@@ -303,59 +308,20 @@ class ShopController extends Controller
             } else {
                 $data['open'] = false;
             }
-            //dd('data', $data);
+            
             $shop->update($data);
-            /* $newshop = $shop->update($manger_data);
-            $newshop2 = Manager::findorFail($shop->manager->id);
-            dd($newshop2); */
+            
+            if ($request->has('subcategories')) {
+                $shop->subCategory()->sync($request['subcategories']);
+            }
             DB::commit();
             return redirect()->route('admin.shops.index')->with(['message' => 'Shop has been updated']);
         }catch(\Exception $e){
             Log::info($e->getMessage());
             DB::rollBack();
-            return redirect()->route('admin.shops.index')->with(['error' => 'Something wrong']);
+            return $e->getMessage();
+            return redirect()->route('admin.shops.edit')->with(['error' => 'Something wrong']);
         }
-
-
-
-
-
-       /*  if ($request->hasFile('image')) {
-            $this->shop->updateShopImage($request, $id);
-        } */
-
-        /* $shop->name = $request->get('name');
-        $shop->email = $request->get('email');
-        $shop->mobile = $request->get('mobile');
-
-        $shop->address = $request->get('address');
-        $shop->latitude = $request->get('latitude');
-        $shop->longitude = $request->get('longitude');
-        $shop->default_tax = $request->get('default_tax');
- 
-        $shop->delivery_range = $request->get('delivery_range');
-*/
-       /*  if ($request->get('available_for_delivery')) {
-            $shop->available_for_delivery = true;
-        } else {
-            $shop->available_for_delivery = false;
-        } */
-
-       /*  if ($request->get('open')) {
-            $shop->open = true;
-        } else {
-            $shop->open = false;
-        } */
-
-        /* if ($shop->save()) {
-            return redirect()->back()->with([
-                'message' => 'Shop has been updated'
-            ]);
-        } else {
-            return redirect()->back()->with([
-                'error' => 'Something wrong'
-            ]);
-        } */
 
     }
 

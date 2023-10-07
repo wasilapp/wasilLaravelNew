@@ -123,7 +123,51 @@
                 </div> <!-- end col-->
             </div>
         </div>
-
+        <div class="row">
+            <div class="card w-100">
+                <div class="card-body">
+                    <div class="row">
+                        <h4 class="col-12">{{ trans('admin.subServices') }}</h4>
+                                    <div class="tab__content w-100">
+                                        <div class="table-container text-center" >
+                                            <table class="table table-striped table-hover"  id="option-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">{{ trans('admin.subService') }} </th>
+                                                        <th scope="col">{{ trans('manager.price') }} </th>
+                                                        <th scope="col">{{ trans('manager.quantity') }} </th>
+                                                        <th scope="col">{{ trans('admin.status') }} </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="option">
+                                                    @forelse ($shopSubcategories as $subcategory )
+                                                    
+                                                            <tr data-id="{{ $subcategory->id }}">
+                                                                <td > {{  $subcategory->title }} </td>
+                                                                <td >{{  $subcategory->pivot->price }}</td>
+                                                                <td>{{ $subcategory->pivot->quantity }}</td>
+                                                                <td>
+                                                                    @if($subcategory->is_approval ==1 )   
+                                                                    <p class="text-success">{{ trans('admin.Accepted') }}</p> 
+                                                                    @else
+                                                                    <p class="text-warning">{{ trans('admin.pending') }}</p> 
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+                                                        
+                                            @empty
+                                                <p>there are no subservies yet</p>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                        </div>
+                                       
+                                        
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="row">
             <div class="col-12 col-md-6">
@@ -132,8 +176,7 @@
                         <div class="row justify-content-center">
                             <div class="col-12">
                                 <img class="card-img-top" style="object-fit: cover" height="300"
-                                     src="{{ asset($shop->image_url) }}"
-                                     
+                                     src="{{ asset($shop['manager']->license) }}"
                                      alt="Card image cap">
                             </div>
                             <div class="col-12 mt-3">

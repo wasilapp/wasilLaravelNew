@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Http\Trait\UploadImage;
+use App\Models\Shop;
 
 class SubCategoryController extends Controller
 {
@@ -24,8 +25,35 @@ class SubCategoryController extends Controller
 
     public function index()
     {
-        $subCategories = $this->SubCategory->with('category')->orderBy('updated_at', 'DESC')->paginate(10);
+        $subCategories = $this->SubCategory->with('category')->orderBy('updated_at', 'DESC')
+        ->where('is_approval', 1)
+        ->where('is_primary', 1)
+        ->paginate(10);
         return view('admin.sub-categories.sub-categories')->with([
+            'sub_categories' => $subCategories
+        ]);
+    }
+
+    public function getSubCategoryShop()
+    {
+        $subCategories = $this->SubCategory->with('category')->orderBy('updated_at', 'DESC')
+        ->where('is_approval', 1)
+        ->where('is_primary', 0)
+        ->paginate(10);
+        return view('admin.sub-categories.sub-categories-shop')->with([
+            'sub_categories' => $subCategories
+        ]);
+    }
+
+    public function SubCategoriesRequest(){
+        $subCategories = $this->SubCategory->with(['category'])->orderBy('updated_at', 'DESC')->where('is_approval', "!=", 1)->paginate(10);
+        foreach ($subCategories as $subCategory) {
+            $shopIds = $subCategory->shops()->pluck('shops.id');
+            $shops = Shop::whereIn('id', $shopIds)->get();
+            $subCategory->shops = $shops;
+        }
+
+        return view('admin.sub-categories.sub-categories-requests')->with([
             'sub_categories' => $subCategories
         ]);
     }
@@ -51,11 +79,20 @@ class SubCategoryController extends Controller
                 'image_url' => $path,
                 'category_id' => $request->input ('category'),
                 'active' => 1,
+                "is_approval" => 1,
                 'title' => [
                     'en' => $request->input('title')['en'],
                     'ar' => $request->input('title')['ar']
                 ],
+                'description' => [
+                    'en' => $request->input('description')['en'],
+                    'ar' => $request->input('description')['ar']
+                ],
             ];
+            if (isset($request->is_primary)) {
+                $data['is_primary'] = 1;
+            }
+
             $this->SubCategory->create($data);
             DB::commit();
             return redirect()->route('admin.sub-categories.index')->with('success','Sub category added successfully');
@@ -89,24 +126,33 @@ class SubCategoryController extends Controller
             $subCategory = $this->SubCategory->find($id);
             $subCategory = $this->SubCategory->findOrfail($id);
             DB::beginTransaction ();
-            if ($request->has('image')) {
-               $path  =  $this->upload($request->image,'sub_categories');
-            }
+
            $data = [
-                'image_url' => $path,
                 'price' => $request->input ('price'),
                 'title' => [
                     'en' => $request->input('title')['en'],
                     'ar' => $request->input('title')['ar']
                 ],
+                'description' => [
+                    'en' => $request->input('description')['en'],
+                    'ar' => $request->input('description')['ar']
+                ],
             ];
+
+            if (isset($request->is_primary)) {
+                $data['is_primary'] = 1;
+            }
+            if (isset($request->image)) {
+                $image_url = $this->updateImage($subCategory->image_url,$request->image,'sub_categories');
+                $data['image_url']= $image_url;
+            }
             $subCategory->update($data);
             DB::commit();
             return redirect()->route('admin.sub-categories.index')->with('success','Sub category updated successfully');
         } catch (\Exception $e) {
             Log::info($e->getMessage());
             DB::rollBack();
-            return redirect()->route('admin.sub-categories.edit')->with(['error' => 'Something wrong']);
+            return redirect()->route('admin.sub-categories.edit',['id'=>$id])->with(['error' => 'Something wrong']);
         }
 
     }
@@ -123,6 +169,19 @@ class SubCategoryController extends Controller
             DB::rollBack();
             return redirect()->route('admin.sub-categories.index')->with(['error' => 'Sub category not deleted']);
         }
+    }
 
+    public function accept(Request $request, $id)
+    {
+        $SubCategory = $this->SubCategory->findOrFail($id);
+        $SubCategory->update(['is_approval' => 1]);
+        return redirect()->route('admin.sub-categories-shops.index')->with('success','Successfully approved');
+    }
+
+    public function decline(Request $request, $id)
+    {
+        $SubCategory = $this->SubCategory->findOrFail($id);
+        $SubCategory->update(['is_approval' => -1]);
+        return redirect()->route('admin.sub-categories-requests.index')->with('success','Rejected successfully');
     }
 }

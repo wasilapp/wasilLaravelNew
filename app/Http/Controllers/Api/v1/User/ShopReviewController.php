@@ -31,7 +31,7 @@ class ShopReviewController extends Controller
 
         if ($shop) {
             $shopReview= ShopReview::where('shop_id', '=', $shop->id)->where('user_id', '=', $user_id)->get();
-            if ($shopReview->count() > 0) {
+            if ($shopReview->isEmpty()) {
                 return response(['errors' => ['This shop is already reviewed']], 403);
             }
 

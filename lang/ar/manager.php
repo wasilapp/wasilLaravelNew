@@ -166,6 +166,10 @@ return [
 
 
     "paystack"=>"Paystack",
-    "stripe"=>"Stripe"
+    "stripe"=>"Stripe",
 
+    'operations' => 'العمليات',
+    'add-new-sub_category' => 'اضافة خدمة جديدة',
+    'add' => 'إضافة',
+    'delete'=>'حذف',
 ];

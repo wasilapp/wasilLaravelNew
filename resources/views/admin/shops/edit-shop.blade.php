@@ -5,10 +5,10 @@
     <link href="{{asset('assets/libs/dropzone/dropzone.min.css')}}" rel="stylesheet" type="text/css"/>
     <link href="{{asset('assets/libs/dropify/dropify.min.css')}}" rel="stylesheet" type="text/css"/>
 @endsection
-
+ 
 @section('content')
 
-    <!-- Start Content-->
+    <!-- Start Content--> 
     <div class="container-fluid">
         <x-alert></x-alert>
 
@@ -36,16 +36,7 @@
                       enctype="multipart/form-data">
                     @csrf
                     {{method_field('PATCH')}}
-                    @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-                        <input type="hidden" name="id" value="{{ $shop->id }}">
+                    <input type="hidden" name="id" value="{{ $shop->id }}">
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
@@ -54,20 +45,36 @@
                                 </div>
                                 <div class="col-12 mb-3">
                                     <div class="row">
-                                        <div class="col-12 col-md-4">
-                                            <div class="form-group">
-                                                <label for="image">{{__('admin.shop_image')}}</label>
-                                                <input type="file" name="shop[image]" id="image" data-plugins="dropify"
-                                                       data-default-file="{{ asset($shop->image_url) }}"
-                                                       class="form-control"/>
-
+                                        <div class="row col-12 col-md-12 mb-4">
+                                            <div class="col-12 col-md-6">
+                                                <label for="image">{{__('admin.image')}}</label>
+                                                <input type="file" name="admin[avatar_url]" id="image" data-plugins="dropify"
+                                                    data-default-file="{{ asset($shop->manager['avatar_url']) }}"
+                                                    class="form-control"/>
                                                 <p class="text-muted text-center mt-2 mb-0">{{__('admin.upload_image')}}</p>
+                                                @if($errors->has('admin.avatar_url'))
+                                                    <span class="invalid-feedback" role="alert">
+                                                            <strong>{{ $errors->first('admin.avatar_url') }}</strong>
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <label for="license">{{__('admin.license')}}</label>
+                                                <input type="file" name="admin[license]" id="license" data-plugins="dropify"
+                                                    data-default-file="{{ asset($shop->manager['license']) }}"
+                                                    class="form-control"/>
+                                                <p class="text-muted text-center mt-2 mb-0">{{__('admin.upload_license')}}</p>
+                                                @if($errors->has('admin.license'))
+                                                    <span class="invalid-feedback" role="alert">
+                                                            <strong>{{ $errors->first('admin.license') }}</strong>
+                                                    </span>
+                                                @endif
                                             </div>
                                         </div>
-                                        <div class="col-12 col-md-8">
+                                        <div class="col-12 col-md-12">
                                             <div class="row">
                                                 <div class="form-group mt-0 col-md-6">
-                                                    <label for="name">{{__('admin.enTitle')}}</label>
+                                                    <label for="name">{{ trans('admin.shop_name_english') }}</label>
                                                     <input type="text" class="form-control @if($errors->has('shop.name.en')) is-invalid @endif" id="nameEn" name="shop[name][en]" value="{{$shop->getTranslation('name','en');}}">
                                                     @if($errors->has('shop.name.en'))
                                                         <span class="invalid-feedback" role="alert">
@@ -76,7 +83,7 @@
                                                     @endif
                                                 </div>
                                                 <div class="form-group mt-0 col-md-6">
-                                                    <label for="name">{{__('admin.arTitle')}}</label>
+                                                    <label for="name">{{ trans('admin.shop_name_arabic') }}</label>
                                                     <input type="text" class="form-control @if($errors->has('shop.name.ar')) is-invalid @endif" id="nameAr" name="shop[name][ar]" value="{{$shop->getTranslation('name','ar');}}">
                                                     @if($errors->has('shop.name.ar'))
                                                         <span class="invalid-feedback" role="alert">
@@ -86,37 +93,64 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-12">
-                                                    <div class="form-group mt-0">
-                                                        <label for="email">{{__('admin.email')}}</label>
-                                                        <input type="text"
-                                                               class="form-control @if($errors->has('shop.email')) is-invalid @endif"
-                                                               id="email" name="shop[email]"
-                                                               value="{{$shop->email}}">
-                                                            @if($errors->has('shop.email'))
-                                                               <span class="invalid-feedback" role="alert">
-                                                                       <strong>{{ $errors->first('shop.email') }}</strong>
-                                                               </span>
-                                                           @endif
-                                                    </div>
+                                                <div class="form-group col-md-12 mb-3">
+                                                    <label for="mobile">{{__('admin.mobile')}}</label>
+                                                    <input type="tel"
+                                                            class="form-control @if($errors->has('admin.mobile')) is-invalid @endif"
+                                                            id="mobile" name="admin[mobile]"
+                                                            value="{{$shop->manager['mobile']}}">
+                                                    @if($errors->has('admin.mobile'))
+                                                        <span class="invalid-feedback" role="alert">
+                                                            <strong>{{ $errors->first('admin.mobile') }}</strong>
+                                                        </span>
+                                                    @endif
                                                 </div>
-
-                                                <div class="col-12">
-                                                    <div class="form-group mt-0">
-                                                        <label for="mobile">{{__('admin.mobile')}}</label>
-                                                        <input type="tel"
-                                                               class="form-control @if($errors->has('shop.mobile')) is-invalid @endif"
-                                                               id="mobile" name="shop[mobile]"
-                                                               value="{{$shop->mobile}}">
-                                                        @if($errors->has('shop.mobile'))
-                                                            <span class="invalid-feedback" role="alert">
-                                                                <strong>{{ $errors->first('shop.mobile') }}</strong>
-                                                            </span>
-                                                        @endif
-                                                    </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group mt-0 col-md-6">
+                                                    <label for="name">{{ trans('admin.manager_name_english') }}</label>
+                                                    <input type="text" class="form-control @if($errors->has('admin.name.en')) is-invalid @endif" id="nameEn" name="admin[name][en]" value="{{$shop->manager->getTranslation('name','en');}}">
+                                                    @if($errors->has('admin.name.en'))
+                                                        <span class="invalid-feedback" role="alert">
+                                                                <strong>{{ $errors->first('admin.name.en') }}</strong>
+                                                        </span>
+                                                    @endif
                                                 </div>
+                                                <div class="form-group mt-0 col-md-6">
+                                                    <label for="name">{{ trans('admin.manager_name_arabic') }}</label>
+                                                    <input type="text" class="form-control @if($errors->has('admin.name.ar')) is-invalid @endif" id="nameAr" name="admin[name][ar]" value="{{$shop->manager->getTranslation('name','ar');}}">
+                                                    @if($errors->has('admin.name.ar'))
+                                                        <span class="invalid-feedback" role="alert">
+                                                                <strong>{{ $errors->first('admin.name.ar') }}</strong>
+                                                        </span>
+                                                    @endif
 
-
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row col-12 col-md-12">
+                                            <div class="form-group col-md-6 mb-3">
+                                                <label for="email">{{__('admin.email')}}</label>
+                                                <input type="text"
+                                                        class="form-control @if($errors->has('admin.email')) is-invalid @endif"
+                                                        id="email" name="admin[email]"
+                                                        value="{{$shop->manager['email']}}">
+                                                @if($errors->has('admin.email'))
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $errors->first('admin.email') }}</strong>
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <div class="form-group col-md-6 mb-3">
+                                                <label for="password">{{ trans('admin.password') }}</label>
+                                                <input type="password"
+                                                        class="form-control @if($errors->has('admin.password')) is-invalid @endif"
+                                                        id="password" name="admin[password]" value="" autocomplete="new-password">
+                                                @if($errors->has('admin.password'))
+                                                    <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $errors->first('admin.password') }}</strong>
+                                                </span>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -181,93 +215,70 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-12 mb-2">
-                                    <h4 class="card-title">{{__('admin.manager')}}</h4>
-
-                                </div>
-
-                                <div class="col-12 mb-3">
-                                    <div class="row">
-                                        <div class="col-12 col-md-4">
-                                            <label for="image">{{__('admin.image')}}</label>
-                                            <input  type="file" name="manager[avatar_url]" id="image" data-plugins="dropify"
-                                                    data-default-file="{{ asset($shop->manager['avatar_url']) }}"
-                                                   class="form-control"/>
-                                            <p class="text-muted text-center mt-2 mb-0">{{__('admin.upload_image')}}</p>
-                                            @if($errors->has('manager.avatar_url'))
-                                                <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $errors->first('manager.avatar_url') }}</strong>
-                                                </span>
-                                            @endif
+                                <h4 class="col-12">{{ trans('admin.subServices') }}</h4>
+                                            <div class="tab__content w-100">
+                                                <div class="table-container text-center" >
+                                                    <table class="table table-striped table-hover"  id="option-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col">{{ trans('admin.subService') }} </th>
+                                                                <th scope="col">{{ trans('manager.price') }} </th>
+                                                                <th scope="col">{{ trans('manager.quantity') }} </th>
+                                                                <th scope="col">{{ trans('manager.operations') }} </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody class="option">
+                                                            @foreach ($shopSubcategories as $subcategory)
+                                                                <tr data-id="{{ $subcategory->id }}">
+                                                                    <input type="hidden" class="form-control" name="subcategories[{{ $subcategory->id }}][sub_category_id]" autofocus value="{{  $subcategory->id }}">
+                                                                    <td > {{  $subcategory->title }} </td>
+                                                                    <td ><input type="text" class="form-control" name="subcategories[{{ $subcategory->id }}][price]" autofocus value="{{  $subcategory->pivot->price }}"></td>
+                                                                    <td><input type="text" class="form-control" name="subcategories[{{ $subcategory->id }}][quantity]" autofocus value="{{ $subcategory->pivot->quantity }}"></td>
+                                                                    <td><span class="btn btn-danger delete">{{ trans('manager.delete') }}</span> </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                               
+                                                <div class="add-option mt-5">
+                                                    <div class="col-md-12">
+                                                        <h6>{{ trans('manager.add-new-sub_category') }}</h6>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-12 col-md-4 form-group">
+                                                            <label class="col-9 control-label pb-2 pt-2">{{trans('admin.subService')}}</label>
+                                                            <div class="col-sm-12 input-group mb-3">
+                                                                <div class="input-group">
+                                                                    <select class="selectpicker sub_category_id" data-live-search="true">
+                                                                        @foreach ($subcategories as $sub)
+                                                                            <option value="{{ $sub->id }}">{{ $sub->title }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12 col-md-4 form-group">
+                                                            <label class="col-9 control-label pb-2 pt-2">{{trans('manager.price')}}</label>
+                                                            <div class="col-sm-12 input-group mb-3">
+                                                                <div class="input-group">
+                                                                    <input id="arTitle" type="text" class="form-control price"  autofocus>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12 col-md-4 form-group">
+                                                            <label class="col-9 control-label pb-2 pt-2">{{trans('manager.quantity')}}</label>
+                                                            <div class="col-sm-12 input-group mb-3">
+                                                                <div class="input-group">
+                                                                    <input id="enTitle" type="text" class="form-control quantity"  autofocus>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="text-center m-auto">
+                                                            <button type="button" class="btn btn-primary addOPtion">{{trans('manager.add')}}</button>
+                                                        </div>
+                                                    </div>
                                         </div>
-                                        <div class="col-12 col-md-8">
-                                            <div class="row">
-                                                <div class="form-group mt-0 col-md-6">
-                                                    <label for="name">{{__('admin.enTitle')}}</label>
-                                                    <input type="text" class="form-control @if($errors->has('manager.name.en')) is-invalid @endif" id="nameEn" name="manager[name][en]" value="{{$shop->manager->getTranslation('name','en');}}">
-                                                    @if($errors->has('admin.name.en'))
-                                                        <span class="invalid-feedback" role="alert">
-                                                                <strong>{{ $errors->first('manager.name.en') }}</strong>
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                                <div class="form-group mt-0 col-md-6">
-                                                    <label for="name">{{__('admin.arTitle')}}</label>
-                                                    <input type="text" class="form-control @if($errors->has('manager.name.ar')) is-invalid @endif" id="nameAr" name="manager[name][ar]" value="{{$shop->manager->getTranslation('name','ar');}}">
-                                                    @if($errors->has('manager.name.ar'))
-                                                        <span class="invalid-feedback" role="alert">
-                                                                <strong>{{ $errors->first('manager.name.ar') }}</strong>
-                                                        </span>
-                                                    @endif
-
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <div class="form-group mt-0">
-                                                        <label for="email">{{__('admin.email')}}</label>
-                                                        <input type="text"
-                                                               class="form-control @if($errors->has('manager.email')) is-invalid @endif"
-                                                               id="email" name="manager[email]"
-                                                               value="{{$shop->manager['email']}}">
-                                                        @if($errors->has('manager.email'))
-                                                            <span class="invalid-feedback" role="alert">
-                                                                <strong>{{ $errors->first('manager.email') }}</strong>
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-12">
-                                                    <div class="form-group mt-0">
-                                                        <label for="mobile">{{__('admin.mobile')}}</label>
-                                                        <input type="tel"
-                                                               class="form-control @if($errors->has('manager.mobile')) is-invalid @endif"
-                                                               id="mobile" name="manager[mobile]"
-                                                               value="{{$shop->manager['mobile']}}">
-                                                        @if($errors->has('manager.mobile'))
-                                                            <span class="invalid-feedback" role="alert">
-                                                                <strong>{{ $errors->first('manager.mobile') }}</strong>
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 ">
-                                                    <div class="form-group mt-0">
-                                                        <label for="password">{{__('manager.change_password')}}</label>
-                                                        <input type="password"
-                                                               class="form-control @if($errors->has('manager.password')) is-invalid @endif"
-                                                               id="password" name="manager[password]" value="" autocomplete="new-password">
-                                                        @if($errors->has('manager.password'))
-                                                            <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $errors->first('manager.password') }}</strong>
-                                                        </span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -431,8 +442,73 @@
                 ]
             }).code("{{$shop->description}}")
         });
+        
     </script>
+<script>
+    
+    $(document).ready(function() {
 
+        
+        /* start add option */
+        $(document).on('click', '.addOPtion', function() {
+                    let id = $('.sub_category_id').find(":selected").val();
+                    let title = $('.sub_category_id').find(":selected").html();
+                    let price = $('.price').val();
+                    let quantity = $('.quantity').val();
+
+                    if ($(`table tr[data-id="${id}"]`).length > 0) {
+                        swal(
+                            '{{trans("admin.this service already selected")}}', {
+                                icon: "warning",
+                                button: '{{trans("admin.ok")}}',
+                        });
+                    } else  if(price ==''  ||  quantity =='' ){
+                        swal(
+                            '{{trans("admin.pricequantity")}}', {
+                                icon: "warning",
+                                button: '{{trans("admin.ok")}}',
+                        });
+
+                    }else{
+                        $('.option').append('<tr data-id='+id+'>\
+                                <input type="hidden" class="form-control" name="subcategories['+id+'][sub_category_id]" autofocus value="'+id+'">\
+                                <td >'+title+'</td>\
+                                <td ><input type="text" class="form-control" name="subcategories['+id+'][price]" autofocus value="'+price+'"></td>\
+                                <td><input type="text" class="form-control" name="subcategories['+id+'][quantity]" autofocus value="'+quantity+'"></td>\
+                                <td><span class="btn btn-danger delete">{{ trans('manager.delete') }}</span> </td>\
+                            </tr>');
+                        $('.price').val('');
+                        $('.quantity').val('');
+                        $('.sub_category_id').find(":selected").val()
+                        
+                    }
+                });
+        /* end add option */
+        /* start delete option */
+                $(document).on('click', '.delete', function() {
+                    swal({
+                        title: '{{trans("admin.Areyousure")}}',
+                        text: '{{trans("admin.Oncedeleted")}}',
+                        icon: "warning",
+                        buttons: ['{{trans("admin.cancel")}}', '{{trans("admin.ok")}}'],
+                        dangerMode: true,
+                        })
+                        .then((willDelete) => {
+                        if (willDelete) {
+                            this.closest("tr").remove();
+                            swal('{{trans("admin.Deletedsuccessfully")}}', {
+                            icon: "success",
+                            });
+                        } else {
+                            /* swal("Your imaginary file is safe!"); */
+                        }
+                    });
+
+                });
+
+        /* end delete option */
+    });
+</script>
     <script src="{{asset('assets/libs/summernote/summernote.min.js')}}"></script>
 
     <!-- Page js-->

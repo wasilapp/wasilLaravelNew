@@ -30,47 +30,47 @@ class ShopRequest extends FormRequest
                     'shop.name.en' => 'required|unique:shops,name->en' . $this->id,
                     'shop.name.ar' => 'required',
                     //'shop.image' => 'required',
-                    'shop.email' => 'required|unique:shops,email,' . $this->id,
-                    'shop.mobile' => 'required|unique:shops,mobile,' . $this->id,
-                    //'shop.category' => 'required',
-                    'address' => 'required',
-                    'latitude' => 'required',
-                    'longitude' => 'required',
-                    'manager.name.en' => 'required|unique:managers,name->en'. $this->id,
-                    'manager.name.ar' => 'required',
-                    'manager.name.ar' => 'required',
-                   // 'manager.avatar_url' => 'required',
-                    'manager.email' => 'required',
-                    'manager.mobile' => 'required',
-                    'delivery_range' => 'required',
-                ];
-                break;
-        
-            default:
-                $rules = [
-                    'shop.name.en' => 'required|unique:shops,name->en',
-                    'shop.name.ar' => 'required',
-                    'shop.image' => 'required',
-                    'shop.email' => 'required',
-                    'shop.mobile' => 'required',
+                    // 'shop.email' => 'required|unique:shops,email,' . $this->id,
+                    // 'shop.mobile' => 'required|unique:shops,mobile,' . $this->id,
                     'shop.category' => 'required',
                     'address' => 'required',
                     'latitude' => 'required',
                     'longitude' => 'required',
-                    'manager.name.en' => 'required|unique:managers,name->en',
-                    'manager.name.ar' => 'required',
-                    'manager.name.ar' => 'required',
-                    'manager.avatar_url' => 'required',
-                    'manager.email' => 'required',
-                    'manager.password' => 'required',
-                    'manager.mobile' => 'required',
+                    'admin.name.en' => 'required|unique:managers,name->en'. $this->id,
+                    'admin.name.ar' => 'required',
+                    // 'manager.name.ar' => 'required',
+                   'admin.avatar_url' => 'required',
+                   'admin.license' => 'required',
+                    'admin.email' => 'required',
+                    'admin.mobile' => 'required',
+                    'delivery_range' => 'required',
+                ];
+                break;
+
+            default:
+                $rules = [
+                    'shop.name.en' => 'required|unique:shops,name->en',
+                    'shop.name.ar' => 'required',
+                    // 'shop.image' => 'required',
+                    // 'shop.email' => 'required',
+                    // 'shop.mobile' => 'required',
+                    'shop.category' => 'required',
+                    'address' => 'required',
+                    'latitude' => 'required',
+                    'longitude' => 'required',
+                    'admin.name.en' => 'required|unique:managers,name->en',
+                    'admin.name.ar' => 'required',
+                    // 'manager.name.ar' => 'required',
+                    'admin.avatar_url' => 'required',
+                    'admin.license' => 'required',
+                    'admin.email' => 'required',
+                    'admin.password' => 'required',
+                    'admin.mobile' => 'required',
                 ];
                 break;
         }
        // dd($rules);
         return $rules;
-
-        
     }
 
     /* public function messages()

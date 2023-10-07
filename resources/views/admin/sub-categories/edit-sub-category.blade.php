@@ -31,7 +31,16 @@
                               enctype="multipart/form-data">
                             @csrf
                             {{method_field('PATCH')}}
-
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                            <input type="hidden" name="category" value="{{ $sub_category->category->id }}">
                             <div class="form-group custom-control custom-switch">
                                 <input type="checkbox" class="custom-control-input" id="active"
                                        name="active" {{$sub_category->active ? "checked" : ""}}>
@@ -59,7 +68,27 @@
                                     @endif
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="form-group mt-0 col-md-6">
+                                    <label for="description">{{__('admin.enDescription')}}</label>
+                                    <textarea class="form-control @if($errors->has('description.en')) is-invalid @endif" id="descriptionEn" name="description[en]" cols="30" rows="10">{{$sub_category->getTranslation('description','en')}}</textarea>
+                                    @if($errors->has('description.en'))
+                                        <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('description.en') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="form-group mt-0 col-md-6">
+                                    <label for="description">{{__('admin.arDescription')}}</label>
+                                    <textarea class="form-control @if($errors->has('description.ar')) is-invalid @endif" id="descriptionAr" name="description[ar]" cols="30" rows="10">{{$sub_category->getTranslation('description','ar');}}</textarea>
 
+                                    @if($errors->has('description.ar'))
+                                        <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('description.ar') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label for="price">{{__('admin.price')}}</label>
                                 <textarea name="price" id="price"

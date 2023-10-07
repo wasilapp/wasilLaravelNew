@@ -60,14 +60,13 @@
                                     <tr>
                                         <td>
                                             <div>
-                                                <img src="{{ asset($category->image_url) }}" style="object-fit: cover" alt="OOps"
+                                                <img src="{{ asset( $category->image_url) }}" style="object-fit: cover" alt="OOps"
                                                      height="40px"
                                                      width="40px">
                                             </div>
                                         </td>
                                         <td>{{$category->title}}</td>
                                         <td>{{$category->commesion}}</td>
-
                                         <td>
                                             <a href="{{route('admin.categories.edit',['id'=>$category->id])}}" style="font-size: 20px"> <i
                                                     class="mdi mdi-pencil"></i></a>

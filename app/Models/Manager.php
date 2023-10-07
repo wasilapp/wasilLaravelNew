@@ -22,6 +22,9 @@ class Manager extends Authenticatable
 {
     use Notifiable,HasApiTokens,hasFactory,HasTranslations;
 
+    // is_approval
+    static $AdminApproval = 1;
+    static $AdminRefused = 0;
 
     //protected $guard = 'manager';
     /**
@@ -30,7 +33,7 @@ class Manager extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','avatar_url','mobile','mobile_verified'
+        'name', 'email', 'password','avatar_url','mobile','mobile_verified','license','is_approval','address'
     ];
     public $translatable = ['name'];
     /**

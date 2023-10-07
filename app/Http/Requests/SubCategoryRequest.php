@@ -23,13 +23,28 @@ class SubCategoryRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'title.en' => 'required|unique:categories,title->en',
-            'title.ar' => 'required',
-            'category' => 'required',
-            'price' => 'required',
-            // 'image' => 'required'
-        ];
+        switch ($this->method()) {
+            case 'PATCH':
+                $rules = [
+                    'title.en' => 'required|unique:categories,title->en,'.$this->id,
+                    'title.ar' => 'required|unique:categories,title->ar,'.$this->id,
+                    'category' => 'required',
+                    'price' => 'required',
+                    // 'image' => 'required'
+                ];
+                break;
+
+            default:
+                $rules = [
+                    'title.en' => 'required|unique:categories,title->en',
+                    'title.ar' => 'required|unique:categories,title->ar',
+                    'category' => 'required',
+                    'price' => 'required',
+                    'image' => 'required'
+                ];
+                break;
+        }
+        return $rules;
     }
 
     public function messages()

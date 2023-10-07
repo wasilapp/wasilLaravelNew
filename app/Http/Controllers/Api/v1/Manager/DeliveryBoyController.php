@@ -6,23 +6,95 @@ namespace App\Http\Controllers\Api\v1\Manager;
 use App\Helpers\DistanceUtil;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\FCMController;
+use App\Http\Trait\MessageTrait;
+use App\Http\Trait\UploadImage;
 use App\Models\DeliveryBoy;
 use App\Models\DeliveryBoyReview;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class DeliveryBoyController extends Controller
 {
+    use MessageTrait;
+    use UploadImage;
+
+    private $deliveryBoy;
+    public function __construct(DeliveryBoy $deliveryBoy)
+    {
+        $this->deliveryBoy = $deliveryBoy;
+    }
 
     public function index()
     {
     }
 
 
-    public function create()
+    public function create(Request $request)
     {
+        try {
+            $validator = Validator::make($request->all(),[
+                'name.en' => 'required',
+                'name.ar' => 'required',
+                'mobile' => 'required|string|unique:delivery_boys',
+                'email' => 'required|email|unique:delivery_boys',
+                'password' => 'required|string|min:8',
+                // 'category_id' => 'required',
+                'car_number' => 'required',
+                'driving_license' => 'required',
+                'avatar_url' => 'required',
+                'shop_id' => ($request->input('category_id') == 1) ? 'required' : 'nullable',
+                'agency_name' => ($request->input('category_id') == 2) ? 'required' : 'nullable'
+            ]);
 
+            if ($validator->fails())
+            {
+                return $this->errorResponse($validator->errors()->all(), 422);
+            }
+            DB::beginTransaction ();
+            $shop =  auth()->user()->shop;
+
+            $data = [
+                'name' => $request->get('name'),
+                'car_number' => $request->get('car_number'),
+                'mobile' => $request->get('mobile'),
+                'password' => Hash::make($request->get('password')),
+                'category_id' => $shop->category_id,
+                'shop_id' => $shop->id,
+                'is_offline' => 1,
+                'is_approval' => 1
+            ];
+            if ($request->input('category_id') != 2) {
+                $request->merge(['agency_name' => null]);
+            }
+            if ($request->driving_license) {
+                $path  =  $this->upload($request->driving_license,'deliveryBoys/driving_licenses');
+                $data['driving_license'] = $path;
+            }
+            if ($request->avatar_url) {
+                $avatar_url  =  $this->upload($request->avatar_url,'deliveryBoys/avatar_url');
+                $data['avatar_url'] = $avatar_url;
+            }
+            if (isset($request->email)) {
+                $data['email'] = $request->email;
+            }
+            $deliveryBoy = $this->deliveryBoy->create($data);
+            $accessToken = $this->deliveryBoy->createToken('authToken')->accessToken;
+            DB::commit();
+            $shop_type = $deliveryBoy->category->title;
+            if(!$shop_type){
+                $shop_type = '';
+            }
+            return $this->returnDataMessage('data', ['deliveryBoy'=>$deliveryBoy,'token'=>$accessToken], trans('message.account-created-Please-wait-admin-approval'));
+        }catch(\Exception $e){
+            Log::info($e->getMessage());
+            DB::rollBack();
+            return $this->returnError('400', $e->getMessage());
+        }
     }
 
     public function store(Request $request)
@@ -44,14 +116,89 @@ class DeliveryBoyController extends Controller
 
     public function update(Request $request, $id)
     {
+        try {
+            DB::beginTransaction ();
+            $user = auth()->user();
 
+            $deliveryBoy = $this->deliveryBoy->findOrFail($id);
+            if (!$deliveryBoy) {
+                return $this->errorResponse(trans('message.deliveryBoy-not-found'),400);
+            }
+            $data = [
+                "is_approval" => 1
+            ];
+            if ($request->name['en']) {
+                $data['name']['en'] = $request->name['en'];
+            }
+            if ($request->name['ar']) {
+                $data['name']['ar'] = $request->name['ar'];
+            }
+            if ($request->has('car_number')) {
+                $data['car_number'] = $request->mobile;
+            }
+            if ($request->has('mobile')) {
+                $data['mobile'] = $request->mobile;
+            }
+            if ($request->has('email')) {
+                $data['email'] = $request->email;
+            }
+            if ($request->has('password')) {
+                $password = Hash::make($request->password);
+                $data['password'] = $password;
+            }
+            if ($request->has('latitude')) {
+                $data['latitude'] = $request->latitude;
+            }
+            if ($request->has('longitude')) {
+                $data['longitude'] = $request->longitude;
+            }
+            if ($request->input('category_id') != 2) {
+                $request->merge(['agency_name' => null]);
+            }
+            if ($request->avatar_url) {
+                $avatar_url  =  $this->upload($request->avatar_url,'deliveryBoys/avatar_url');
+                $data['avatar_url'] = $avatar_url;
+            }
+            if ($request->driving_licenses) {
+                $driving_licenses  =  $this->upload($request->driving_licenses,'deliveryBoys/avatar_url');
+                $data['driving_licenses'] = $driving_licenses;
+            }
+            $deliveryBoy->update($data);
+            DB::commit();
+            return $this->returnDataMessage('data', ['deliveryBoy'=>$deliveryBoy], trans('message.account-created-Please-wait-admin-approval'));
+
+        }catch(\Exception $e){
+            Log::info($e->getMessage());
+            DB::rollBack();
+            return response(['errors' => [$e->getMessage()]], 402);
+        }
 
     }
 
 
     public function destroy($id)
     {
+        try {
+            DB::beginTransaction ();
+            $user = auth()->user();
 
+            $deliveryBoy = $this->deliveryBoy->findOrFail($id);
+            if (!$deliveryBoy) {
+                return $this->errorResponse(trans('message.deliveryBoy-not-found'),400);
+            }
+            if ($deliveryBoy->is_approval == 2) {
+                if ($deliveryBoy->orders()->isEmpty()) {
+                    return $this->errorResponse(trans('message.deliveryBoy-has-orders'), 403);
+                }
+            }
+            $deliveryBoy->delete();
+            DB::commit();
+            return $this->returnMessage(trans('message.deliveryBoy-deleted-successfully'),204);
+        }catch(\Exception $e){
+            Log::info($e->getMessage());
+            DB::rollBack();
+            return response(['errors' => [$e->getMessage()]], 402);
+        }
 
     }
 
@@ -119,17 +266,17 @@ class DeliveryBoyController extends Controller
 
         if($shop) {
             $shopDeliveryBoys = DeliveryBoy::where('shop_id', '=', $shop->id)->get();
-            $allocatedDeliveryBoys = DeliveryBoy::has('shop')->where('shop_id', "!=", $shop->id)->get();
-            $unAllocatedDeliveryBoys = DeliveryBoy::doesnthave('shop')->get();
-
-            return response(['shop_delivery_boys' => $shopDeliveryBoys,
-                'allocated_delivery_boys' => $allocatedDeliveryBoys,
-                'unallocated_delivery_boys' => $unAllocatedDeliveryBoys], 200);
+            $shopDeliveryBoysAcceptManager = DeliveryBoy::where('shop_id', '=', $shop->id)->where('is_approval', '=', 1)->get();
+            $shopDeliveryBoysAcceptAdmin = DeliveryBoy::where('shop_id', '=', $shop->id)->where('is_approval', '=', 2)->get();
+            $shopDeliveryBoysPending = DeliveryBoy::where('shop_id', '=', $shop->id)->where('is_approval', '=', 0)->get();
+            return $this->returnData('data', [
+                'allShopDeliveryBoys'=>$shopDeliveryBoys,
+                'shopDeliveryBoysAcceptManager'=>$shopDeliveryBoysAcceptManager,
+                'shopDeliveryBoysAcceptAdmin'=>$shopDeliveryBoysAcceptAdmin,
+                'shopDeliveryBoysPending'=>$shopDeliveryBoysPending,
+            ]);
         }
-        return response(['errors' => ['You have not any shop yet']], 504);
-
-
-
+        return $this->errorResponse(trans('message.any-shop-yet'), 200);
     }
 
     public function manage($id){
@@ -165,4 +312,37 @@ class DeliveryBoyController extends Controller
         ]);
 
     }
+
+
+    public function accept($id){
+        try {
+            DB::beginTransaction ();
+                $deliveryBoy =  $this->deliveryBoy::findOrFail($id);
+                $deliveryBoy->is_approval = 1;
+                $deliveryBoy->save();
+            DB::commit();
+            return $this->returnDataMessage('data', ['DeliveryBoy'=>$deliveryBoy],trans('message.deliveryBoy-accepted'));
+        }catch(\Exception $e){
+            Log::error($e->getMessage());
+            DB::rollBack();
+            return response(['errors' => [$e->getMessage()]], 402);
+        }
+
+    }
+    public function decline($id){
+        try {
+            DB::beginTransaction ();
+                $deliveryBoy =  $this->deliveryBoy::findOrFail($id);
+                $deliveryBoy->is_approval = -1;
+                $deliveryBoy->save();
+            DB::commit();
+            return $this->returnDataMessage('data', ['DeliveryBoy'=>$deliveryBoy],trans('message.deliveryBoy-decline'));
+        }catch(\Exception $e){
+            Log::error($e->getMessage());
+            DB::rollBack();
+            return response(['errors' => [$e->getMessage()]], 402);
+        }
+
+    }
+
 }

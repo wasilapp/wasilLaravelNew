@@ -58,8 +58,6 @@ class FCMController extends BaseController
         }
     }
 
-
-
     public static function sendMessageToAll($title,$body): bool
     {
 
@@ -117,8 +115,4 @@ class FCMController extends BaseController
             return $result;
         }
     }
-
-
-
-
 }

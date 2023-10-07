@@ -24,6 +24,9 @@ class UserAddress extends Model
     static $WORK = 1;
     static $OTHER = 2;
 
+    protected $fillable = [
+        'longitude', 'latitude', 'address','address2','city', 'pincode','user_id','type','default'
+    ];
 
 
     public function user(){

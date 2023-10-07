@@ -15,7 +15,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\DeliveryBoy\RegisterDeliveryBoyRequest;
+use App\Http\Requests\Api\DeliveryBoy\LoginDeliveryBoyRequest;
+use App\Http\Requests\Api\DeliveryBoy\RegisterDeliveryBoyRequest;
 
 
 class AuthController extends Controller
@@ -28,9 +29,28 @@ class AuthController extends Controller
     {
         $this->deliveryBoy = $deliveryBoy;
     }
-    public function register(RegisterDeliveryBoyRequest $request)
+    public function register(Request $request)
     {
         try {
+            $validator = Validator::make($request->all(),[
+                'name.en' => 'required',
+                'name.ar' => 'required',
+                'mobile' => 'required|string|unique:delivery_boys',
+                'email' => 'required|email|unique:delivery_boys',
+                'distance' => 'integer|min:10',
+                'password' => 'required|string|min:8',
+                'category_id' => 'required',
+                'car_number' => 'required',
+                'driving_license' => 'required',
+                'avatar_url' => 'required',
+                'shop_id' => ($request->input('category_id') == 1) ? 'required' : 'nullable',
+                'agency_name' => ($request->input('category_id') == 2) ? 'required' : 'nullable'
+            ]);
+
+            if ($validator->fails())
+            {
+                return $this->errorResponse($validator->errors()->all(), 422);
+            }
             DB::beginTransaction ();
             $data = [
                 'name' => $request->get('name'),
@@ -38,15 +58,22 @@ class AuthController extends Controller
                 'mobile' => $request->get('mobile'),
                 'password' => Hash::make($request->get('password')),
                 'category_id' => $request->get('category_id'),
-                'mobile_verified' => 1,
-                'is_offline' => 1
+                'latitude' => $request->get('latitude'),
+                'longitude' => $request->get('longitude'),
+                // 'distance' => $request->get('distance'),
             ];
+            if ($request->input('category_id') != 2) {
+                $request->merge(['agency_name' => null]);
+            }
+            if (isset($request->distance)) {
+                $data['distance'] = $request->distance;
+            }
             if ($request->driving_license) {
-                $path  =  $this->upload($request->driving_license,'driving_licenses');
+                $path  =  $this->upload($request->driving_license,'deliveryBoys/driving_licenses');
                 $data['driving_license'] = $path;
             }
-            if ($request->profile_img) {
-                $avatar_url  =  $this->upload($request->profile_img,'profile_images');
+            if ($request->avatar_url) {
+                $avatar_url  =  $this->upload($request->avatar_url,'deliveryBoys/avatar_url');
                 $data['avatar_url'] = $avatar_url;
             }
             if (isset($request->email)) {
@@ -62,7 +89,7 @@ class AuthController extends Controller
             if(!$shop_type){
                 $shop_type = '';
             }
-            return $this->returnData('data', ['deliveryBoy'=>$deliveryBoy,'token'=>$accessToken]);
+            return $this->returnDataMessage('data', ['deliveryBoy'=>$deliveryBoy,'token'=>$accessToken], trans('message.account-created-Please-wait-admin-approval'));
         }catch(\Exception $e){
             Log::info($e->getMessage());
             DB::rollBack();
@@ -73,143 +100,183 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         try {
+            $validator = Validator::make($request->all(),[
+                'mobile' => 'required',
+                'password' => 'required',
+            ]);
+
+            if ($validator->fails())
+            {
+                return $this->errorResponse($validator->errors()->all(), 422);
+            }
             DB::beginTransaction ();
-            //sleep(3);
+            $deliveryBoy = $this->deliveryBoy->where('mobile', $request->mobile)->first();
 
-        $data = $request->validate([
-            'email' => 'required',
-            'password' => 'required'
-        ]);
-
-
-        if (!DeliveryBoy::where('mobile', '=', $request->email)->exists()) {
-            return response(['errors' => ['This email is not found']], 402);
-        }
-
-        $deliveryBoy = DeliveryBoy::where('mobile', $request->email)->first();
-
-        $shop_type = $deliveryBoy->category->title;
-        if(!$shop_type){
-            $shop_type = '';
-        }
-        if ($deliveryBoy && Hash::check($request->password, $deliveryBoy->password)) {
-            if(!$deliveryBoy->is_verified){
-                 return response(['errors' => [trans('admin.wait_verification')]], 402);
+            if(!$this->deliveryBoy->where('mobile', $request->mobile)->exists()){
+                return $this->errorResponse(trans('message.mobile-not-found'),403);
             }
+
+            if(!Hash::check($request->password, $deliveryBoy->password)) {
+                return $this->errorResponse(trans('message.password-correct'),400);
+            }
+
+            if($deliveryBoy->is_verified == 0){
+                return $this->errorResponse(trans('message.deliveryBoy-Inactive-by-manager'),403);
+            }
+
+            if($deliveryBoy->is_verified == 1){
+                return $this->errorResponse(trans('message.deliveryBoy-Inactive-by-admin'),403);
+            }
+
+
             $accessToken = $deliveryBoy->createToken('authToken')->accessToken;
-            if (isset($request->fcm_token)) {
+            if(isset($request->fcm_token)){
+                $deliveryBoy = $this->deliveryBoy->find($deliveryBoy->id);
                 $deliveryBoy->fcm_token = $request->fcm_token;
+                $deliveryBoy->save();
             }
-            $deliveryBoy->save();
-            return $this->returnData('data', ['deliveryBoy'=>$deliveryBoy,'token'=>$accessToken]);
-        } else {
-            return response(['errors' => ['Password is not correct']], 402);
-        }
+            $shop_type = $deliveryBoy->category->title;
+            if(!$shop_type){
+                $shop_type = '';
+            }
             DB::commit();
+            return $this->returnData('data', ['deliveryBoy'=>$deliveryBoy,'token'=>$accessToken]);
         }catch(\Exception $e){
             Log::info($e->getMessage());
             DB::rollBack();
-            return $this->returnError('400', $e->getMessage());
+            return response(['errors' => [$e->getMessage()]], 402);
         }
 
-        
     }
 
     public function changeStatus(Request $request)
     {
-        $this->validate($request, [
-            'is_offline' => 'required'
-        ]);
-        $deliveryBoy = DeliveryBoy::find(auth()->user()->id);
-        if ($request->is_offline) {
-            if ($deliveryBoy->is_free) {
-                $deliveryBoy->is_offline = $request->is_offline;
+        try {
+            DB::beginTransaction ();
+            $this->validate($request, [
+                'is_offline' => 'required'
+            ]);
+            $deliveryBoy = $this->deliveryBoy->find(auth()->user()->id);
+            if ($request->is_offline) {
+                if ($deliveryBoy->is_free) {
+                    $deliveryBoy->is_offline = $request->is_offline;
+                } else {
+                    return response(['errors' => ['Please delivered current order then you can goes to offline']], 402);
+                }
             } else {
-                return response(['errors' => ['Please delivered current order then you can goes to offline']], 402);
+                $deliveryBoy->is_offline = $request->is_offline;
             }
-        } else {
-            $deliveryBoy->is_offline = $request->is_offline;
-        }
+            DB::commit();
 
-        if ($deliveryBoy->save()) {
-            return response(['message' => ['Your status has been changed'], 'delivery_boy' => $deliveryBoy], 200);
-        } else {
-            return response(['errors' => ['Something went wrong']], 402);
+            return $this->returnDataMessage('data', ['deliveryBoy'=>$deliveryBoy],trans('message.Your status has been changed'));
+        }catch(\Exception $e){
+            Log::info($e->getMessage());
+            DB::rollBack();
+            return response(['errors' => [$e->getMessage()]], 402);
         }
     }
 
     public function updateProfile(Request $request)
     {
-        // return response(['errors' => ['This is demo version' ]], 403);
-        $deliveryBoy =  DeliveryBoy::find(auth()->user()->id);
+        try {
+            DB::beginTransaction ();
+            $user = auth()->user();
+            $deliveryBoy = $this->deliveryBoy->where('mobile', $user->mobile)->first();
 
-        if (isset($request->mobile)) {
-            $deliveryBoy->mobile = $request->mobile;
+            if (!$deliveryBoy) {
+                return $this->errorResponse(trans('message.deliveryBoy-not-found'),400);
+            }
+            $data = [
+                "is_approval" => 0
+            ];
+            if ($request->has('name')) {
+                $data['name'] = $request->name;
+            }
+            if ($request->has('car_number')) {
+                $data['car_number'] = $request->mobile;
+            }
+            if ($request->has('mobile')) {
+                $data['mobile'] = $request->mobile;
+            }
+            if ($request->has('email')) {
+                $data['email'] = $request->email;
+            }
+            if ($request->has('distance')) {
+                $data['distance'] = $request->distance;
+            }
+            if ($request->has('password')) {
+                $password = Hash::make($request->password);
+                $data['password'] = $password;
+            }
+            if ($request->avatar_url) {
+                $avatar_url  =  $this->upload($request->avatar_url,'deliveryBoys/avatar_url');
+                $data['avatar_url'] = $avatar_url;
+            }
+            if ($request->driving_licenses) {
+                $driving_licenses  =  $this->upload($request->driving_licenses,'deliveryBoys/avatar_url');
+                $data['driving_licenses'] = $driving_licenses;
+            }
+            $deliveryBoy->update($data);
+            DB::commit();
+            return $this->returnDataMessage('data', ['deliveryBoy'=>$deliveryBoy], trans('message.account-created-Please-wait-admin-approval'));
+        }catch(\Exception $e){
+            Log::info($e->getMessage());
+            DB::rollBack();
+            return response(['errors' => [$e->getMessage()]], 402);
         }
 
-        if (isset($request->password)) {
-            $deliveryBoy->password = Hash::make($request->password);
-        }
-
-        if (isset($request->avatar_image)) {
-            $url = "storage/delivery_boy_avatars/" . Str::random(10) . ".jpg";
-            $oldImage = $deliveryBoy->avatar_url;
-            $data = base64_decode($request->avatar_image);
-            Storage::disk('public')->put($url, $data);
-            Storage::disk('public')->delete($oldImage);
-            $deliveryBoy->avatar_url = $url;
-        }
-
-        if ($deliveryBoy->save()) {
-            return response(['message' => ['Your setting has been changed'], 'delivery_boy' => $deliveryBoy], 200);
-        } else {
-            return response(['errors' => ['There is something wrong']], 402);
-        }
     }
 
     public function verifyMobileNumber(Request $request)
     {
+        try {
+            DB::beginTransaction();
 
-        $validator = Validator::make($request->all(), [
-            'mobile' => 'required',
+            $validator = Validator::make($request->all(), [
+                'mobile' => 'required',
+            ]);
 
-        ]);
+            if ($validator->fails()) {
+                return $this->errorResponse(['errors' => $validator->errors()->all()], 422);
+            }
 
-        if ($validator->fails()) {
-            return response(['errors' => $validator->errors()->all()], 422);
-        }
-
-        if (DeliveryBoy::where('mobile', $request->mobile)->exists()) {
-            return response(['errors' => ['Mobile number already exists']], 402);
-        } else {
-            return response(['message' => ['You can verify with this mobile']]);
-        }
-    }
-
-    public function mobileVerified(Request $request)
-    {
-
-        $validator = Validator::make($request->all(), [
-            'mobile' => 'required',
-
-        ]);
-
-        if ($validator->fails()) {
-            return response(['errors' => $validator->errors()->all()], 422);
-        }
-
-
-        $user =  auth()->user();
-
-
-        $user->mobile = $request->get('mobile');
-        $user->mobile_verified = true;
-
-
-        if ($user->save()) {
-            return response(['message' => ['Your setting has been changed'], 'delivery_boy' => $user], 200);
-        } else {
-            return response(['errors' => ['There is something wrong']], 402);
+            if ($this->deliveryBoy->where('mobile', $request->input('mobile'))->exists()) {
+                DB::rollBack();
+                return $this->errorResponse([trans('message.mobile-already-register')], 400);
+            }
+            DB::commit();
+            return $this->returnMessage(trans('message.verify-mobile'),204);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            DB::rollBack();
+            return response(['errors' => [$e->getMessage()]], 402);
         }
     }
+
+   public function mobileVerified(Request $request)
+   {
+        try {
+            DB::beginTransaction();
+            $validator = Validator::make($request->all(),[
+                'mobile'=>'required',
+            ]);
+
+            if ($validator->fails())
+            {
+                return response(['errors'=>$validator->errors()->all()], 422);
+            }
+            $user =  auth()->user();
+            $data = [
+                "mobile" => $request->get('mobile'),
+                "mobile_verified" => true
+            ];
+            $user->update($data);
+            DB::commit();
+            return $this->returnDataMessage('data', ['user'=>$user],trans('message.account-modified'));
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            DB::rollBack();
+            return response(['errors' => [$e->getMessage()]], 402);
+        }
+   }
 }

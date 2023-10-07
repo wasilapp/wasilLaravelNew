@@ -36,7 +36,9 @@ class Shop extends Model
 
 
     protected $fillable = [
-        'name','manager_id','image_url','email','mobile','barcode','latitude','longitude','address','rating','delivery_range','total_rating','category_id','default_tax', 'available_for_delivery', 'open'
+        'name','manager_id','image_url','email','mobile','barcode','latitude',
+        'longitude','address','rating','delivery_range','total_rating','category_id',
+        'default_tax', 'available_for_delivery', 'open','distance'
     ];
     public $translatable = ['name'];
 
@@ -48,7 +50,7 @@ class Shop extends Model
     public function shopReviews(){
         return $this->hasMany(ShopReview::class);
     }
-    
+
    public function orders(){
         return $this->hasMany(Order::class);
     }
@@ -64,7 +66,7 @@ class Shop extends Model
         return $shop->orders->sum('total');
     }
 
-    
+
 
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -92,10 +94,6 @@ class Shop extends Model
         return $shop->save();
     }
 
-
-
-
-
     public static function deleteImage($id): bool
     {
         $productImage = ProductImage::find($id);
@@ -106,10 +104,33 @@ class Shop extends Model
         return false;
     }
 
-
-
     static function generateGoogleMapLocationUrl( $latitude,  $longitude){
         return "http://maps.google.com/maps?q=$latitude+$longitude";
     }
 
+    public function subCategory()
+    {
+        return $this->belongsToMany(SubCategory::class)
+        ->withPivot('price')
+        ->withPivot('quantity')
+        ->using(ShopSubcategory::class);
+    }
+
+    public function ShopSubcategory(){
+        return $this->belongsToMany(ShopSubcategory::class);
+    }
+
+    public function calculateDistance($userLatitude, $userLongitude) {
+       $earthRadius = 6371; // نصف قطر الأرض بالكيلومتر
+        $latDiff = deg2rad($userLatitude - $this->latitude);
+        $lonDiff = deg2rad($userLongitude - $this->longitude);
+        $a = sin($latDiff / 2) * sin($latDiff / 2) + cos(deg2rad($this->latitude)) * cos(deg2rad($userLatitude)) * sin($lonDiff / 2) * sin($lonDiff / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $distance = $earthRadius * $c;
+
+        $this->distance = $distance;
+        $this->save();
+
+        return $distance;
+    }
 }

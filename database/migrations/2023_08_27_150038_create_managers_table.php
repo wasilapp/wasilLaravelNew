@@ -19,12 +19,13 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('locale')->default('en');
             $table->string('fcm_token')->nullable();
             $table->string('avatar_url')->nullable();
+            $table->string('license')->nullable();
             $table->string('public_email')->nullable();
             $table->string('mobile')->nullable();
             $table->boolean('mobile_verified')->default(false);
+            $table->tinyInteger('is_approval')->default(0);
             $table->string('address')->nullable();
             $table->rememberToken();
             $table->timestamps();

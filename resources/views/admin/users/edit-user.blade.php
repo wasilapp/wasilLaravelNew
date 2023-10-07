@@ -64,7 +64,7 @@
 
                             <div class="form-group custom-control custom-switch">
                                 <input type="checkbox" class="custom-control-input" id="blocked"
-                                       name="blocked" {{$user->blocked ? "checked" : ""}}>
+                                       name="blocked" {{$user->blocked ? "checked" : ""}} value="1">
                                 <label class="custom-control-label" for="blocked">{{__('admin.block')}}</label>
                             </div>
 

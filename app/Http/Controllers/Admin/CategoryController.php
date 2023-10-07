@@ -38,6 +38,7 @@ class CategoryController extends Controller
             if ($request->has('image')) {
                 $path  =  $this->upload($request->image,'categories-icons');
             }
+            
             $data = [
                 'image_url' => $path,
                 'commesion' => $request->input ('commesion'),
@@ -48,7 +49,12 @@ class CategoryController extends Controller
                     'en' => $request->input('title')['en'],
                     'ar' => $request->input('title')['ar']
                 ],
+                'description' => [
+                    'en' => $request->input('description')['en'],
+                    'ar' => $request->input('description')['ar']
+                ],
             ];
+
             $this->category->create($data);
             DB::commit();
             return redirect()->route('admin.categories.index')->with('success','Category added successfully');
@@ -77,7 +83,10 @@ class CategoryController extends Controller
 
     public function update(CategoryRequest $request, $id)
     {
+        //dd($request->all());
         try {
+           
+            DB::beginTransaction ();
             if (isset($request->active)) {
                 $this->category->activateCategory($id);
                 $active = 1;
@@ -85,14 +94,9 @@ class CategoryController extends Controller
                 $this->category->disableCategory($id);
                 $active = 0;
             }
-
             $category = $this->category->findOrfail($id);
-            DB::beginTransaction ();
-            if ($request->has('image')) {
-               $path  =  $this->upload($request->image,'categories-icons');
-            }
-           $data = [
-                'image_url' => $path,
+
+            $data = [
                 'commesion' => $request->input ('commesion'),
                 'delivery_fee' => $request->input ('delivery_fee'),
                 'type' => $request->input ('type'),
@@ -101,14 +105,23 @@ class CategoryController extends Controller
                     'en' => $request->input('title')['en'],
                     'ar' => $request->input('title')['ar']
                 ],
+                'description' => [
+                    'en' => $request->input('description')['en'],
+                    'ar' => $request->input('description')['ar']
+                ],
             ];
+            if (isset($request->image)) {
+                $image_url = $this->updateImage($category->image_url,$request->image,'categories-icons');
+                $data['image_url']= $image_url;
+            }
             $category->update($data);
             DB::commit();
             return redirect()->route('admin.categories.index')->with('success','Category updated successfully');
         }catch(\Exception $e){
             Log::info($e->getMessage());
             DB::rollBack();
-           return redirect()->route('admin.categories.edit')->with(['error' => 'Something wrong']);
+           // return $e->getMessage();
+           return redirect()->route('admin.categories.edit',['id'=>$id])->with(['error' => 'Something wrong']);
         }
     }
 
@@ -126,7 +139,6 @@ class CategoryController extends Controller
             DB::rollBack();
             return redirect()->route('admin.categories.index')->with(['error' => 'Category not deleted']);
         }
-
     }
 
 }

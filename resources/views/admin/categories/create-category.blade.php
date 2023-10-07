@@ -59,6 +59,27 @@
                                     @endif
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="form-group mt-0 col-md-6">
+                                    <label for="description">{{__('admin.enDescription')}}</label>
+                                    <textarea class="form-control @if($errors->has('description.en')) is-invalid @endif" id="descriptionEn" name="description[en]" value="{{old('description[en]')}}" cols="30" rows="10"></textarea>
+                                    @if($errors->has('description.en'))
+                                        <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('description.en') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="form-group mt-0 col-md-6">
+                                    <label for="description">{{__('admin.arDescription')}}</label>
+                                    <textarea class="form-control @if($errors->has('description.ar')) is-invalid @endif" id="descriptionAr" name="description[ar]" value="{{old('description[ar]')}}" cols="30" rows="10"></textarea>
+
+                                    @if($errors->has('description.ar'))
+                                        <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('description.ar') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
 
                             <div class="form-group mt-0">
                                 <label for="type">{{__('admin.type')}}</label>

@@ -152,10 +152,15 @@
                     </div>
                 </div>
                 <div class="col-12 text-right">
-                    @if(!$delivery_boy->is_verified)
-                        <a href="{{route('admin.verify',$delivery_boy->id)}}" class="btn btn-success waves-effect waves-light mr-1">{{__('admin.verify')}}
+                    @if(!$delivery_boy->is_approval !== 2)
+                        <a href="{{route('admin.delivery-boy-request.accept',$delivery_boy->id)}}" class="btn btn-success waves-effect waves-light mr-1">{{__('admin.verify')}}
                         </a>
                     @endif
+                    @if($delivery_boy->is_approval !== -2)
+                        <a href="{{route('admin.delivery-boy-request.decline',$delivery_boy->id)}}" class="btn btn-success waves-effect waves-light mr-1">{{__('admin.Rejected')}}
+                        </a>
+                    @endif
+                   {{--  @endif --}}
                     {{--  --}}
                 </div>
             </div>

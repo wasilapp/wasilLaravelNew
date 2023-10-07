@@ -5,6 +5,8 @@
 
 <!-------Styles--------->
 <link href="{{asset('assets/css/bootstrap.min.css')}}" rel="stylesheet" type="text/css" id="bs-default-stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
+
 <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700,900" rel="stylesheet" type="text/css" id="app-default-stylesheet" />
 <link href="{{asset('assets/css/app.min.css')}} " rel="stylesheet" type="text/css" id="app-default-stylesheet" />
 <link href="{{asset('assets/css/bootstrap-dark.min.css')}} " rel="stylesheet" type="text/css" id="bs-dark-stylesheet" disabled />
@@ -12,6 +14,8 @@
 <link rel="stylesheet" href="{{ asset('assets/css/toastr.min.css') }}"><!-- Toastr CSS -->
 <link href="{{asset('assets/css/style.css')}} " rel="stylesheet" type="text/css" id="app-default-stylesheet" />
 <link rel="stylesheet" href="{{ asset('assets/css/loading.css') }}">
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
 @if(trans('admin.dir') !== 'rtl')
     <link href="{{asset('assets/css/style-en.css')}} " rel="stylesheet" type="text/css" id="app-default-stylesheet" />
 @else

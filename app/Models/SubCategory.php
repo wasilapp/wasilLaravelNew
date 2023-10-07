@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Shop;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @method static orderBy(string $string, string $string1)
@@ -18,11 +19,20 @@ class SubCategory extends Model
 {
     use HasFactory, HasTranslations;
 
+    // is_approval
+    static $PenddingApproval = 0;
+    static $AdminApproval = 1;
+    static $AdminRefused = -1;
+    // is_primary
+    static $isPrimary = 1;
+    static $isNotPrimary = 0;
+
+
     protected $fillable = [
-        'title', 'price', 'category_id','active','image_url'
+        'title','description', 'price', 'category_id','active','image_url','is_primary','is_approval'
     ];
 
-    public $translatable = ['title'];
+    public $translatable = ['title','description'];
 
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -35,11 +45,11 @@ class SubCategory extends Model
 
     public static function activateSubCategory($id): bool
     {
-        $products =  Product::where('sub_category_id',$id)->get();
+        /* $products =  Product::where('sub_category_id',$id)->get();
         foreach ($products as $product) {
             $product->active = true;
             $product->save();
-        }
+        } */
         $subCategory = SubCategory::find($id);
         $subCategory->active = true;
         $subCategory->save();
@@ -48,15 +58,20 @@ class SubCategory extends Model
 
     public static function disableSubCategory($id): bool
     {
-        $products =  Product::where('sub_category_id',$id)->get();
+        /* $products =  Product::where('sub_category_id',$id)->get();
         foreach ($products as $product) {
             $product->active = false;
             Cart::where('product_id', '=', $product->id)->where('active', '=', true)->delete();
             $product->save();
-        }
+        } */
         $subCategory = SubCategory::find($id);
         $subCategory->active = false;
         $subCategory->save();
         return true;
+    }
+
+    public function shops()
+    {
+        return $this->belongsToMany(Shop::class, 'shop_sub_category', 'sub_category_id', 'shop_id');
     }
 }

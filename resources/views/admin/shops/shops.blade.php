@@ -63,7 +63,7 @@
                                             </td>
                                             <td>
                                                 <img
-                                                    src="{{ asset($shop->image_url) }}"
+                                                    src="{{ asset($shop->manager->avatar_url) }}"
                                                     alt="image" class="img-fluid rounded" width="100">
                                             </td>
                                             <td>{{$shop->name}}</td>
@@ -92,14 +92,13 @@
                                                    style="font-size: 20px"> <i
                                                         class="mdi mdi-pencil"></i></a>
 
-
                                                 <a href="{{route('admin.shops.reviews.show',['id'=>$shop->id])}}"
                                                    class="ml-1"
                                                    style="font-size: 20px"> <i class="mdi mdi-star"></i></a>
-                                                   
-                                                   <a onclick="return confirm('Deleting this Shop require to delete all data related to it (delivery boys , orders, User Coupons) . Are you sure to delete it?')" 
+
+                                                   <a onclick="return confirm('Deleting this Shop require to delete all data related to it (delivery boys , orders, User Coupons) . Are you sure to delete it?')"
                                                 href="{{route('admin.shops.delete',['id'=>$shop->id])}}" style="font-size: 20px"> <i
-                                                    class="mdi mdi-trash-can"></i></a> 
+                                                    class="mdi mdi-trash-can"></i></a>
                                             </td>
                                         </tr>
                                     @endforeach

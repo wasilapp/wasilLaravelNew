@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
+use App\Http\Trait\UploadImage;
+use App\Models\Category;
 use App\Models\DeliveryBoy;
 use App\Models\DeliveryBoyRevenue;
 use App\Models\DeliveryBoyReview;
@@ -11,12 +13,10 @@ use App\Models\ShopRevenue;
 use ArielMejiaDev\LarapexCharts\LarapexChart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use App\Models\Category;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Trait\UploadImage;
 
 class DeliveryBoyController extends Controller
 {
@@ -44,7 +44,7 @@ class DeliveryBoyController extends Controller
 
     public function index()
     {
-        $deliveryBoys = $this->deliveryBoy->paginate(10);
+        $deliveryBoys = $this->deliveryBoy->where('is_approval', 2)->paginate(10);
 
         foreach ($deliveryBoys as $deliveryBoy) {
             $ordersCount=0;
@@ -62,6 +62,26 @@ class DeliveryBoyController extends Controller
             'delivery_boys'=>$deliveryBoys
         ]);
     }
+    public function deliveryBoyRequest()
+    {
+        $deliveryBoys = $this->deliveryBoy->where('is_approval', "!=", 2)->paginate(10);
+
+        foreach ($deliveryBoys as $deliveryBoy) {
+            $ordersCount=0;
+            $revenue=0;
+            $deliveryBoyRevenues = $this->deliveryBoyRevenue->where('delivery_boy_id','=',$deliveryBoy->id)->get();
+            foreach ($deliveryBoyRevenues as $deliveryBoyRevenue) {
+                $ordersCount += 1;
+                $revenue += $deliveryBoyRevenue->revenue;
+            }
+            $deliveryBoy['revenue']=$revenue;
+            $deliveryBoy['orders_count']=$ordersCount;
+        }
+
+        return view('admin.delivery-boy.delivery-boys-request')->with([
+            'delivery_boys'=>$deliveryBoys
+        ]);
+    }
 
 
     public function create()
@@ -74,7 +94,7 @@ class DeliveryBoyController extends Controller
 
     public function store(Request $request)
     {
-        try {
+        try { 
             DB::beginTransaction ();
             if($this->deliveryBoy->where('mobile','LIKE','%'.$request->mobile)->first()){
                 return response(['message'=>"Number is  registered"], 200);
@@ -260,6 +280,24 @@ class DeliveryBoyController extends Controller
          return view('admin.delivery-boy.show-reviews-delivery-boy')->with([
              'deliveryBoyReviews'=>$deliveryBoyReviews
          ]);
+
+    }
+    public function accept($id){
+
+        $del = DeliveryBoy::findOrFail($id);
+        $del->is_verified = 1;
+        $del->is_approval = 2;
+        $del->is_offline = 0;
+        $del->save();
+        return redirect()->route('admin.delivery-boys.index')->with(['success' => 'Updated']);
+
+    }
+    public function decline($id){
+        $del = DeliveryBoy::findOrFail($id);
+        $del->is_approval = -2;
+        $del->save();
+        return redirect()->route('admin.delivery-boy-request.index')->with(['success' => 'Updated']);
+
 
     }
 

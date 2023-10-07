@@ -16,6 +16,8 @@ return new class extends Migration
         Schema::create('delivery_boys', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
+            $table->string('agency_name')->nullable();
+            $table->string('car_number', 250);
             $table->string('email')->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
@@ -24,6 +26,7 @@ return new class extends Migration
             $table->double('longitude')->nullable();
             $table->boolean('is_free')->default(true);
             $table->boolean('is_offline')->default(false);
+            $table->boolean('is_active')->default(false);
             $table->string('avatar_url')->nullable();
             $table->string('mobile')->nullable();
             $table->boolean('mobile_verified')->default(false);
@@ -31,10 +34,11 @@ return new class extends Migration
             $table->integer('total_rating')->default(0);
             $table->integer('category_id');
             $table->unsignedBigInteger('shop_id')->nullable();
-            $table->string('car_number', 250);
             $table->rememberToken();
             $table->boolean('is_verified')->default(false);
             $table->string('driving_license', 250)->nullable();
+            $table->tinyInteger('is_approval')->default(0);
+            $table->integer('distance')->default(5000);
             $table->timestamps();
         });
     }

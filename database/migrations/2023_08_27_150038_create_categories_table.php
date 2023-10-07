@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('title')->unique();
+            $table->longText('description')->nullable();
             $table->double('commesion')->nullable();
             $table->string('image_url')->nullable();
             $table->string('type', 250);

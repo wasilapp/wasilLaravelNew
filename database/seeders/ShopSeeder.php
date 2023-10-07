@@ -33,7 +33,8 @@ class ShopSeeder extends Seeder
                 'open' => true,
                 'manager_id' => 1,
                 'category_id' => 1,
-                "delivery_range" => 99999999
+                "delivery_range" => 99999999,
+                "distance" => 30
             ],
             [
                 //'name' => "The Corner Store",// The Corner Store
@@ -53,7 +54,8 @@ class ShopSeeder extends Seeder
                 'open' => true,
                 'manager_id' => 2,
                 'category_id' => 2,
-                "delivery_range" => 99999999
+                "delivery_range" => 99999999,
+                "distance" => 50
             ],
 
         ];

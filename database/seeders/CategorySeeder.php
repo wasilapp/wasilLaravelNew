@@ -20,18 +20,26 @@ class CategorySeeder extends Seeder
                     'en' => 'Water Service',
                     'ar' =>'خدمة الماء'
                 ],
+                'description' => [
+                    'en' => 'description',
+                    'ar' =>'وصف'
+                ],
                 'type' => 'water',
                 'commesion' => 0.1,
-                'image_url' => "categories/OSm7NpPLrSyIfqoe4QM6BTBQieVPsgmz5l04vjXG.png",
+                'image_url' => "uploads/categories-icons/1.jpeg",
             ],
             [
                 'title' => [
                     'en' => 'Gas Service',
                     'ar' =>'خدمة الغاز'
                 ],
+                'description' => [
+                    'en' => 'description',
+                    'ar' =>'وصف'
+                ],
                 'type' => 'gas',
                 'commesion' => 0.1,
-                'image_url' => "categories/68nhUGKvinf6u5KzcPKeaPs6bOEz56ZpSWqbAue7.png",
+                'image_url' => "uploads/categories-icons/2.jpeg",
             ],
 
         ];

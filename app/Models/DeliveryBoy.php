@@ -21,10 +21,20 @@ class DeliveryBoy extends Authenticatable
 {
     use Notifiable, HasApiTokens, HasFactory,HasTranslations;
 
+    // is_approval
+    static $PenddingApproval = 0;
+    static $ManagerApproval = 1;
+    static $ManagerRefused = -1;
+    static $AdminApproval = 2;
+    static $AdminRefused = -2;
+
     protected $fillable = [
-        'name','email','email_verified_at','password','fcm_token','latitude','longitude','is_free','is_offline','avatar_url','mobile','mobile_verified','rating','total_rating', 'category_id', 'shop_id','car_number','driving_license','is_verified'
+        'name','email','email_verified_at','password','fcm_token','latitude',
+        'longitude','is_free','is_offline','is_approval','avatar_url','mobile',
+        'mobile_verified','rating','total_rating', 'category_id', 'shop_id',
+        'car_number','driving_license','is_verified','distance','agency_name'
     ];
-    public $translatable = ['name'];
+    public $translatable = ['name','agency_name'];
 
     public function orders()
     {
@@ -65,5 +75,19 @@ class DeliveryBoy extends Authenticatable
     public function ordersAssignToDelivery()
     {
         return $this->hasMany(AssignToDelivery::class);
+    }
+
+    public function calculateDistance($userLatitude, $userLongitude) {
+       $earthRadius = 6371; // نصف قطر الأرض بالكيلومتر
+        $latDiff = deg2rad($userLatitude - $this->latitude);
+        $lonDiff = deg2rad($userLongitude - $this->longitude);
+        $a = sin($latDiff / 2) * sin($latDiff / 2) + cos(deg2rad($this->latitude)) * cos(deg2rad($userLatitude)) * sin($lonDiff / 2) * sin($lonDiff / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $distance = $earthRadius * $c;
+
+        $this->distance = $distance;
+        $this->save();
+
+        return $distance;
     }
 }

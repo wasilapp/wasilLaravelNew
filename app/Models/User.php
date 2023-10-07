@@ -28,8 +28,17 @@ class User extends Authenticatable
 {
     use Notifiable,HasApiTokens,hasFactory;
 
+    // account_type
+    static $individual = 0;
+    static $institution = 1;
+    // blocked
+    static $blocked = 0;
+    static $NonBlocked = 1;
+
     protected $fillable = [
-        'name', 'email','email_verified_at','mobile','mobile_verified','avatar_url','fcm_token', 'password','blocked',
+        'name', 'email','default','email_verified_at',
+        'mobile','mobile_verified','avatar_url','fcm_token',
+        'password','blocked','account_type','referrer'
     ];
 
     protected $hidden = [

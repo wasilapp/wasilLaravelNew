@@ -18,9 +18,9 @@ class ChangeLanguage
      */
     public function handle(Request $request, Closure $next)
     {
-        LaravelLocalization::setLocale('ar');
-        if(isset($request->lang)&&$request->lang=='en')
         LaravelLocalization::setLocale('en');
+        if(isset($request->lang)&&$request->lang=='ar')
+        LaravelLocalization::setLocale('ar');
         return $next($request);
     }
 }

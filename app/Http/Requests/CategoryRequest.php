@@ -23,15 +23,33 @@ class CategoryRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'title.en' => 'required|unique:categories,title->en',
-            'title.ar' => 'required',
-            // 'image' => 'required',
-            'type' => 'required',
-            'commesion' => 'required',
-            'delivery_fee' => 'required',
-        ];
+       
+        switch ($this->method()) {
+            case 'PATCH':
+                $rules = [
+                    'title.en' => 'required|unique:categories,title->en,'.$this->id,
+                    'title.ar' => 'required|unique:categories,title->ar,'.$this->id,
+                    'type' => 'required',
+                    'commesion' => 'required',
+                    'delivery_fee' => 'required',
+                ];
+                break;
+
+            default:
+                $rules = [
+                    'title.en' => 'required|unique:categories,title->en',
+                    'title.ar' => 'required|unique:categories,title->ar',
+                    'image' => 'required',
+                    'type' => 'required',
+                    'commesion' => 'required',
+                    'delivery_fee' => 'required',
+                ];
+                break;
+        }
+        //dd($rules);
+        return $rules;
     }
+
 
     public function messages()
     {

@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductImageController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\WalletCouponsController;
+use App\Http\Controllers\Admin\UserController;
 
 Route::get('/testView',[App\Http\Controllers\Controller::class,'testView']);
 
@@ -86,10 +87,10 @@ Route::get('/',[App\Http\Controllers\Admin\Auth\LoginController::class,'showLogi
 
     // Route::prefix('user')->group(function (){
 
-    //     Route::get('/login','User\Auth\LoginController@showLoginForm');
-    //     Route::get('/register','User\Auth\RegisterController@showRegisterForm');
-    //     Route::post('/login','User\Auth\LoginController@login')->name('user.login');
-    //     Route::post('/register','User\Auth\RegisterController@create')->name('user.register');
+        // Route::get('/login','User\Auth\LoginController@showLoginForm');
+        // Route::get('/register','User\Auth\RegisterController@showRegisterForm');
+        // Route::post('/login','User\Auth\LoginController@login')->name('user.login');
+        // Route::post('/register','User\Auth\RegisterController@create')->name('user.register');
 
 
     //     //Password  Reset
@@ -148,18 +149,23 @@ Route::get('/',[App\Http\Controllers\Admin\Auth\LoginController::class,'showLogi
             Route::post('/',[CategoryController::class,'store'])->name('admin.categories.store');
             Route::get('/{id}',[CategoryController::class,'show'])->name('admin.categories.show'); //Read
             Route::get('/{id}/edit',[CategoryController::class,'edit'])->name('admin.categories.edit');
-            Route::patch('/{id}',[CategoryController::class,'update'])->name('admin.categories.update');//Update
+            Route::patch('/update/{id}',[CategoryController::class,'update'])->name('admin.categories.update');//Update
             Route::get('/{id}/delete',[CategoryController::class,'destroy'])->name('admin.categories.delete');//Delete
         });
         //-------------------------------- Sub - Category --------------------------------//
         Route::prefix('/sub_categories')->group(function () {
             Route::get('/', [SubCategoryController::class, 'index'])->name('admin.sub-categories.index');
+            Route::get('/shops', [SubCategoryController::class, 'getSubCategoryShop'])->name('admin.sub-categories-shops.index');
             Route::get('/create', [SubCategoryController::class, 'create'])->name('admin.sub-categories.create');
             Route::post('/store', [SubCategoryController::class, 'store'])->name('admin.sub-categories.store');
             Route::get('/show/{id}', [SubCategoryController::class, 'show'])->name('admin.sub-categories.show');
             Route::get('/edit/{id}', [SubCategoryController::class, 'edit'])->name('admin.sub-categories.edit');
             Route::patch('/update/{id}', [SubCategoryController::class, 'update'])->name('admin.sub-categories.update');
             Route::get('/delete/{id}', [SubCategoryController::class, 'destroy'])->name('admin.sub-categories.delete');
+            Route::get('/sub-categories-requests', [SubCategoryController::class, 'SubCategoriesRequest'])->name('admin.sub-categories-requests.index');
+            Route::post('/sub-categories-requests/accept/{id}',[SubCategoryController::class, 'accept'])->name('admin.sub-categories-requests.accept');
+            Route::post('/sub-categories-requests/decline/{id}',[SubCategoryController::class, 'decline'])->name('admin.sub-categories-requests.decline');
+
         });
         //-------------------------------- Coupon --------------------------------//
         Route::prefix('/coupons')->group(function () {
@@ -225,10 +231,13 @@ Route::get('/',[App\Http\Controllers\Admin\Auth\LoginController::class,'showLogi
         Route::delete('/shops-reviews/{id}','Admin\ShopReviewController@destroy')->name('admin.shops.reviews.delete');
 
 
-
         //------------------------------ Shop Request --------------------------//
-        Route::get('/shop_requests',[ShopRequestController::class, 'index'])->name('admin.shop_requests.index');//index
+        Route::get('/shop_requests',[ShopRequestController::class, 'index'])->name('admin.shop_requests.index');
+        Route::post('/shop_requests/accept/{id}',[ShopRequestController::class, 'accept'])->name('admin.shop_requests.accept');
+        Route::post('/shop_requests/decline/{id}',[ShopRequestController::class, 'decline'])->name('admin.shop_requests.decline');
+
         Route::patch('/shop_requests/{id}',[ShopRequestController::class, 'update'])->name('admin.shop_requests.update');
+        Route::get('/shop_requests/{id}',[ShopRequestController::class, 'show'])->name('admin.shop_requests.show');//show
 
 
         //------------------------------ Delivery Boy --------------------------//
@@ -242,6 +251,12 @@ Route::get('/',[App\Http\Controllers\Admin\Auth\LoginController::class,'showLogi
         Route::DELETE('/delivery-boys/{id}',[DeliveryBoyController::class,'destroy'])->name('admin.delivery-boy.destroy');
         //Delete review
         Route::delete('/delivery-boy-reviews/{id}',[DeliveryBoyController::class,'destroy'])->name('admin.delivery-boy.review.delete');
+        //------------------------------ Delivery Boy Request --------------------------//
+        Route::get('/delivery_boys_requests',[DeliveryBoyController::class, 'deliveryBoyRequest'])->name('admin.delivery-boy-request.index');
+        Route::get('/delivery_boys_requests/accept/{id}',[DeliveryBoyController::class, 'accept'])->name('admin.delivery-boy-request.accept');
+        Route::get('/delivery_boys_requests/decline/{id}',[DeliveryBoyController::class, 'decline'])->name('admin.delivery-boy-request.decline');
+
+        Route::patch('/delivery_boys_requests/{id}',[DeliveryBoyController::class, 'update'])->name('admin.delivery-boy-request.update');
 
         Route::prefix('/transactions')->group(function () {
             Route::get('/',[TransactionController::class,'index'])->name('admin.transactions.index');
@@ -600,13 +615,7 @@ Route::get('/',[App\Http\Controllers\Admin\Auth\LoginController::class,'showLogi
     /* Route::get('/', function () {
         return view('home');
     })->name('home'); */
-  Route::get('admin/{id}/verify', function ($id) {
-        $del = DeliveryBoy::findOrFail($id);
-        $del->is_verified = 1;
-        $del->is_offline = 0;
-        $del->save();
-        return redirect()->back()->with(['success' => 'Updated']);
-    })->name('admin.verify');
+
 
 
 

@@ -13,10 +13,11 @@ trait UploadImage
         $filename = Str::uuid() . $file->getClientOriginalName();
         $file->move(public_path('uploads/'.$folder), $filename);
         $path = 'uploads/'. $folder .'/'. $filename;
+        // $path = 'public/uploads/'. $folder .'/'. $filename;
 
         return $path;
     }
-   
+
     public static function updateImage($old_file , $new_file, $folder){
        // dd('trait');
         $filename = Str::uuid() . $new_file->getClientOriginalName();

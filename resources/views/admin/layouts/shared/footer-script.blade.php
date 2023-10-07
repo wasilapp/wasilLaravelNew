@@ -2,6 +2,7 @@
 <!-- Vendor js -->
 <script src="{{asset('assets/js/vendor.min.js')}}"></script>
 <script src="{{ asset('assets/js/toastr.min.js') }}"></script><!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
 
 @yield('script')
 <!-- App js -->
@@ -108,6 +109,33 @@
         } else {
             subMenu.style.display = 'block';
             submenuToggle.classList.add('active');
+        }
+    });
+    const submenuToggle2 = document.getElementById('submenu-toggle2');
+    const subMenu2 = submenuToggle2.querySelector('.sub-menu');
+    const menuArrow2 = submenuToggle2.querySelector('.menu-arrow');
+
+    submenuToggle2.addEventListener('click', function() {
+        if (subMenu2.style.display === 'block') {
+            subMenu2.style.display = 'none';
+            submenuToggle2.classList.remove('active');
+        } else {
+            subMenu2.style.display = 'block';
+            submenuToggle2.classList.add('active');
+        }
+    });
+
+    const submenuToggle3 = document.getElementById('submenu-toggle3');
+    const subMenu3 = submenuToggle3.querySelector('.sub-menu');
+    const menuArrow3 = submenuToggle3.querySelector('.menu-arrow');
+
+    submenuToggle3.addEventListener('click', function() {
+        if (subMenu3.style.display === 'block') {
+            subMenu3.style.display = 'none';
+            submenuToggle3.classList.remove('active');
+        } else {
+            subMenu3.style.display = 'block';
+            submenuToggle3.classList.add('active');
         }
     });
     </script>

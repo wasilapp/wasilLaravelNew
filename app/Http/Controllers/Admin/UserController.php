@@ -64,22 +64,19 @@ class UserController extends Controller
             $this->validate($request, [
                 'mobile' => 'required',
             ]);
-
-
             $user= $this->user->find($id);
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->mobile = $request->mobile;
+            if (!$user) {
+                return redirect()->route('admin.users.index')->with('error', 'User not found');
+            }
 
-            if(isset($request->blocked)){
-                $user->blocked = true;
-            }else{
-                $user->blocked = false;
-            }
-            if($user->save()) {
-                return redirect()->route('admin.users.index')->with('success','User updated successfully');
-            }
+            $user->update([
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'mobile' => $request->input('mobile'),
+                'blocked' => $request->has('blocked') ? 1 : 0,
+            ]);
             DB::commit();
+            return redirect()->route('admin.users.index')->with('success','User updated successfully');
         }catch(\Exception $e){
             Log::info($e->getMessage());
             DB::rollBack();

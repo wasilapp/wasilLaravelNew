@@ -16,20 +16,29 @@ class Category extends Model
 {
     use hasFactory, HasTranslations;
 
+    protected $table = 'categories';
+
     protected $fillable = [
-        'title', 'commesion', 'image_url','delivery_fee','type','active'
+        'title','description', 'commesion', 'image_url','delivery_fee','type','active'
     ];
 
-    public $translatable = ['title']; 
+    public $translatable = ['title','description'];
 
-    public function products()
-    {
-        return $this->hasMany(Product::class);
-    }
+    // public function products()
+    // {
+    //     return $this->hasMany(Product::class);
+    // }
 
     public function subCategories()
     {
         return $this->hasMany(SubCategory::class);
+    }
+
+    public function subAdminCategories()
+    {
+        return $this->hasMany(SubCategory::class)->where('is_primary', 1);
+        // $subCategoriesAdmin =  $this->hasMany(SubCategory::class);
+        // return $subCategoriesAdmin->where('is_primary', 1);
     }
 
     public function shops()

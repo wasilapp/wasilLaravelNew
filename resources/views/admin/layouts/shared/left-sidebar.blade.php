@@ -24,11 +24,39 @@
                     </a>
                 </li>
 
-                <li>
+                {{-- <li>
                     <a href="{{route('admin.sub-categories.index')}}">
                         <i data-feather="grid"></i>
                         <span> {{__('admin.subServices')}} </span>
                     </a>
+                </li> --}}
+                <li class="submenu mb-2 submenu-toggle" id="submenu-toggle3">
+                    <a href="#">
+                        <i data-feather="home"></i>
+                        <span>{{ __('admin.subServices') }}</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="sub-menu mt-2">
+                        <li class="">
+                            <a href="{{route('admin.sub-categories.index')}}">
+                               {{-- <i data-feather="home"></i> --}}
+                                <span> {{__('admin.subServices')}} </span>
+                            </a>
+                        </li>
+                        <li class="mt-3">
+                            <a href="{{route('admin.sub-categories-shops.index')}}">
+                               {{-- <i data-feather="home"></i> --}}
+                                <span> {{__('admin.subServicesShops')}} </span>
+                            </a>
+                        </li>
+                        <li class="mt-3">
+                            <a href="{{route('admin.sub-categories-requests.index')}}">
+                                {{-- <i data-feather="user-check"></i> --}}
+                                <span> {{__('admin.sub_services_requests')}} </span>
+                            </a>
+                        </li>
+                    </ul>
+
                 </li>
 
                 <li class="menu-title">{{__('admin.navigation')}}</li>
@@ -40,7 +68,7 @@
                     </a>
                 </li>
 
-                <li class="submenu mb-2" id="submenu-toggle">
+                <li class="submenu mb-2 submenu-toggle" id="submenu-toggle">
                     <a href="#">
                         <i data-feather="home"></i>
                         <span>{{ __('admin.shops') }}</span>
@@ -61,13 +89,34 @@
                         </li>
                     </ul>
                 </li>
+                <li class="submenu mb-2 submenu-toggle" id="submenu-toggle2">
+                    <a href="#">
+                        <i data-feather="home"></i>
+                        <span>{{ __('admin.delivery_boy') }}</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="sub-menu mt-2">
+                        <li class="">
+                            <a href="{{route('admin.delivery-boys.index')}}">
+                               {{-- <i data-feather="home"></i> --}}
+                                <span> {{__('admin.delivery_boy')}} </span>
+                            </a>
+                        </li>
+                        <li class="mt-3">
+                            <a href="{{route('admin.delivery-boy-request.index')}}">
+                                {{-- <i data-feather="user-check"></i> --}}
+                                <span> {{__('admin.delivery_boy_request')}} </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
-                 <li>
+                 {{-- <li>
                     <a href="{{route('admin.delivery-boys.index')}}">
                         <i data-feather="truck"></i>
                         <span> {{__('admin.delivery_boy')}} </span>
                     </a>
-                </li>
+                </li> --}}
 
                 <li>
                     <a href="{{route('admin.orders.index')}}">

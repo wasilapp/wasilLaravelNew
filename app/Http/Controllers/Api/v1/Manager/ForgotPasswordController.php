@@ -3,39 +3,41 @@
 namespace App\Http\Controllers\Api\v1\Manager;
 
 use App\Http\Controllers\Controller;
+use App\Http\Trait\MessageTrait;
+use App\Models\Manager;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
-use App\Models\User;
+use Illuminate\Support\Facades\Validator;
 
 
 class ForgotPasswordController extends Controller
 {
+    use MessageTrait;
 
     public function sendResetLinkEmail(Request $request)
     {
-
-        return response(['errors' => ['This is demo version']], 403);
-
-        $request->validate([
+        $validator = Validator::make($request->all(),[
             'email' => 'required|email'
         ]);
 
-
+        if ($validator->fails())
+        {
+            return $this->errorResponse($validator->errors()->all(), 422);
+        }
         if(!Manager::where('email','=',$request->email)->exists()){
-            return response(['errors' => ['This email is not registered']], 403);
+            return $this->errorResponse(trans('message.email-is-not-registered'),403);
 
         }
-
 
         $response = Password::broker('managers')->sendResetLink(
             $request->only('email')
         );
 
         if ($response == Password::RESET_LINK_SENT) {
-            return response(['message' => 'Your password reset link sent.'], 200);
+            return $this->returnMessage(trans('message.Your-password-reset-link-sent'),204);
         } else {
-            return response(['errors' => ['Email link already sent. please wait until 60 seconds']], 403);
+            return $this->errorResponse(trans('message.Email-already-sent-please-wait'),403);
         }
     }
 }

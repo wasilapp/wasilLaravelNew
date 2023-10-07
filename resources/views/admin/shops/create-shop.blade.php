@@ -10,7 +10,7 @@
 
     <!-- Start Content-->
     <div class="container-fluid">
-
+        <x-alert></x-alert>
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box">
@@ -38,25 +38,38 @@
                                 <div class="col-12 mb-2">
                                     <h4 class="card-title">{{__('admin.general')}}</h4>
                                 </div>
-
                                 <div class="col-12 mb-3">
                                     <div class="row">
-                                        <div class="col-12 col-md-4">
-                                            <label for="image">{{__('admin.image')}}</label>
-                                            <input type="file" name="shop[image]" id="image" data-plugins="dropify"
-                                                   data-default-file=""
-                                                   class="form-control @if($errors->has('shop.image')) is-invalid @endif"/>
-                                            <p class="text-muted text-center mt-2 mb-0">{{__('admin.upload_image')}}</p>
-                                            @if($errors->has('shop.image'))
-                                                <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $errors->first('shop.image') }}</strong>
-                                                </span>
-                                            @endif
+                                        <div class="row col-12 col-md-12 mb-4">
+                                            <div class="col-12 col-md-6">
+                                                <label for="image">{{__('admin.image')}}</label>
+                                                <input type="file" name="admin[avatar_url]" id="image" data-plugins="dropify"
+                                                    data-default-file=""
+                                                    class="form-control"/>
+                                                <p class="text-muted text-center mt-2 mb-0">{{__('admin.upload_image')}}</p>
+                                                @if($errors->has('admin.avatar_url'))
+                                                    <span class="invalid-feedback" role="alert">
+                                                            <strong>{{ $errors->first('admin.avatar_url') }}</strong>
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <div class="col-12 col-md-6">
+                                                <label for="license">{{__('admin.license')}}</label>
+                                                <input type="file" name="admin[license]" id="license" data-plugins="dropify"
+                                                    data-default-file=""
+                                                    class="form-control"/>
+                                                <p class="text-muted text-center mt-2 mb-0">{{__('admin.upload_license')}}</p>
+                                                @if($errors->has('admin.license'))
+                                                    <span class="invalid-feedback" role="alert">
+                                                            <strong>{{ $errors->first('admin.license') }}</strong>
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </div>
-                                        <div class="col-12 col-md-8">
+                                        <div class="col-12 col-md-12">
                                             <div class="row">
                                                 <div class="form-group mt-0 col-md-6">
-                                                    <label for="name">{{__('admin.enTitle')}}</label>
+                                                    <label for="name">{{ trans('admin.shop_name_english') }}</label>
                                                     <input type="text" class="form-control @if($errors->has('shop.name.en')) is-invalid @endif" id="nameEn" name="shop[name][en]" value="{{old('shop[name][en]')}}">
                                                     @if($errors->has('shop.name.en'))
                                                         <span class="invalid-feedback" role="alert">
@@ -65,7 +78,7 @@
                                                     @endif
                                                 </div>
                                                 <div class="form-group mt-0 col-md-6">
-                                                    <label for="name">{{__('admin.arTitle')}}</label>
+                                                    <label for="name">{{ trans('admin.shop_name_arabic') }}</label>
                                                     <input type="text" class="form-control @if($errors->has('shop.name.ar')) is-invalid @endif" id="nameAr" name="shop[name][ar]" value="{{old('shop[name][ar]')}}">
                                                     @if($errors->has('shop.name.ar'))
                                                         <span class="invalid-feedback" role="alert">
@@ -75,37 +88,7 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-12">
-                                                    <div class="form-group mt-0">
-                                                        <label for="email">{{__('admin.email')}}</label>
-                                                        <input type="text"
-                                                               class="form-control @if($errors->has('shop.email')) is-invalid @endif"
-                                                               id="email" name="shop[email]"
-                                                               value="{{old('shop.email')}}">
-                                                            @if($errors->has('shop.email'))
-                                                               <span class="invalid-feedback" role="alert">
-                                                                       <strong>{{ $errors->first('shop.email') }}</strong>
-                                                               </span>
-                                                           @endif
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-12">
-                                                    <div class="form-group mt-0">
-                                                        <label for="mobile">{{__('admin.mobile')}}</label>
-                                                        <input type="tel"
-                                                               class="form-control @if($errors->has('shop.mobile')) is-invalid @endif"
-                                                               id="mobile" name="shop[mobile]"
-                                                               value="{{old('mobile')}}">
-                                                        @if($errors->has('shop.mobile'))
-                                                            <span class="invalid-feedback" role="alert">
-                                                                <strong>{{ $errors->first('shop.mobile') }}</strong>
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-group mb-3">
+                                                <div class="form-group col-md-6 mb-3">
                                                     <label for="category">{{__('manager.category')}} <span class="text-danger">*</span></label>
                                                     <select class="form-control" name="shop[category]" id="category">
                                                         @foreach($categories as $category)
@@ -113,17 +96,72 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
+                                                <div class="form-group  col-md-6 mb-3">
+                                                    <label for="mobile">{{__('admin.mobile')}}</label>
+                                                    <input type="tel"
+                                                            class="form-control @if($errors->has('admin.mobile')) is-invalid @endif"
+                                                            id="mobile" name="admin[mobile]"
+                                                            value="{{old('mobile')}}">
+                                                    @if($errors->has('admin.mobile'))
+                                                        <span class="invalid-feedback" role="alert">
+                                                            <strong>{{ $errors->first('admin.mobile') }}</strong>
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group mt-0 col-md-6">
+                                                    <label for="name">{{ trans('admin.manager_name_english') }}</label>
+                                                    <input type="text" class="form-control @if($errors->has('admin.name.en')) is-invalid @endif" id="nameEn" name="admin[name][en]" value="{{old('name[en]')}}">
+                                                    @if($errors->has('admin.name.en'))
+                                                        <span class="invalid-feedback" role="alert">
+                                                                <strong>{{ $errors->first('admin.name.en') }}</strong>
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                <div class="form-group mt-0 col-md-6">
+                                                    <label for="name">{{ trans('admin.manager_name_arabic') }}</label>
+                                                    <input type="text" class="form-control @if($errors->has('admin.name.ar')) is-invalid @endif" id="nameAr" name="admin[name][ar]" value="{{old('admin[name][ar]')}}">
+                                                    @if($errors->has('admin.name.ar'))
+                                                        <span class="invalid-feedback" role="alert">
+                                                                <strong>{{ $errors->first('admin.name.ar') }}</strong>
+                                                        </span>
+                                                    @endif
 
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row col-12 col-md-12">
+                                            <div class="form-group col-md-6 mb-3">
+                                                <label for="email">{{__('admin.email')}}</label>
+                                                <input type="text"
+                                                        class="form-control @if($errors->has('admin.email')) is-invalid @endif"
+                                                        id="email" name="admin[email]"
+                                                        value="{{old('admin.email')}}">
+                                                @if($errors->has('admin.email'))
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $errors->first('admin.email') }}</strong>
+                                                    </span>
+                                                @endif
+                                            </div>
+                                             <div class="form-group col-md-6 mb-3">
+                                                <label for="password">{{ trans('admin.password') }}</label>
+                                                <input type="password"
+                                                        class="form-control @if($errors->has('admin.password')) is-invalid @endif"
+                                                        id="password" name="admin[password]" value="" autocomplete="new-password">
+                                                @if($errors->has('admin.password'))
+                                                    <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $errors->first('admin.password') }}</strong>
+                                                </span>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
-
-
                             </div>
                         </div>
                     </div>
+                    
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
@@ -190,105 +228,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-12 mb-2">
-                                    <h4 class="card-title">{{__('admin.manager')}}</h4>
-
-                                </div>
-
-                                <div class="col-12 mb-3">
-                                    <div class="row">
-                                        <div class="col-12 col-md-4">
-                                            <label for="image">{{__('admin.image')}}</label>
-                                            <input type="file" name="admin[avatar_url]" id="image" data-plugins="dropify"
-                                                   data-default-file=""
-                                                   class="form-control"/>
-                                            <p class="text-muted text-center mt-2 mb-0">{{__('admin.upload_image')}}</p>
-                                            @if($errors->has('admin.avatar_url'))
-                                                <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $errors->first('admin.avatar_url') }}</strong>
-                                                </span>
-                                            @endif
-                                        </div>
-                                        <div class="col-12 col-md-8">
-                                            <div class="row">
-                                                <div class="form-group mt-0 col-md-6">
-                                                    <label for="name">{{__('admin.enTitle')}}</label>
-                                                    <input type="text" class="form-control @if($errors->has('admin.name.en')) is-invalid @endif" id="nameEn" name="admin[name][en]" value="{{old('name[en]')}}">
-                                                    @if($errors->has('admin.name.en'))
-                                                        <span class="invalid-feedback" role="alert">
-                                                                <strong>{{ $errors->first('admin.name.en') }}</strong>
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                                <div class="form-group mt-0 col-md-6">
-                                                    <label for="name">{{__('admin.arTitle')}}</label>
-                                                    <input type="text" class="form-control @if($errors->has('admin.name.ar')) is-invalid @endif" id="nameAr" name="admin[name][ar]" value="{{old('admin[name][ar]')}}">
-                                                    @if($errors->has('admin.name.ar'))
-                                                        <span class="invalid-feedback" role="alert">
-                                                                <strong>{{ $errors->first('admin.name.ar') }}</strong>
-                                                        </span>
-                                                    @endif
-
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <div class="form-group mt-0">
-                                                        <label for="email">{{__('admin.email')}}</label>
-                                                        <input type="text"
-                                                               class="form-control @if($errors->has('admin.email')) is-invalid @endif"
-                                                               id="email" name="admin[email]"
-                                                               value="{{old('admin.email')}}">
-                                                        @if($errors->has('admin.email'))
-                                                            <span class="invalid-feedback" role="alert">
-                                                                <strong>{{ $errors->first('admin.email') }}</strong>
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-12">
-                                                    <div class="form-group mt-0">
-                                                        <label for="mobile">{{__('admin.mobile')}}</label>
-                                                        <input type="tel"
-                                                               class="form-control @if($errors->has('admin.mobile')) is-invalid @endif"
-                                                               id="mobile" name="admin[mobile]"
-                                                               value="{{old('mobile')}}">
-                                                        @if($errors->has('admin.mobile'))
-                                                            <span class="invalid-feedback" role="alert">
-                                                                <strong>{{ $errors->first('admin.mobile') }}</strong>
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 ">
-                                                    <div class="form-group mt-0">
-                                                        <label for="password">{{__('manager.change_password')}}</label>
-                                                        <input type="password"
-                                                               class="form-control @if($errors->has('admin.password')) is-invalid @endif"
-                                                               id="password" name="admin[password]" value="" autocomplete="new-password">
-                                                        @if($errors->has('admin.password'))
-                                                            <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $errors->first('admin.password') }}</strong>
-                                                        </span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="card" hidden>
                         <div class="card-body">
@@ -328,12 +267,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-
-
-
-
-
                             </div>
                         </div>
                     </div>
@@ -347,40 +280,13 @@
 
                                 <div class="col-12 col-md-12 mb-3">
                                     <div class="custom-checkbox custom-control">
-                                        <input class="custom-control-input" type="checkbox" name="open" id="open">
+                                        <input class="custom-control-input" type="checkbox" name="open" id="open" checked>
                                         <label class="custom-control-label" for="open">{{__('manager.open')}}</label>
                                     </div>
                                 </div>
-
-                                {{-- <div class="col-12 col-md-6">
-                                    <div class="form-group mt-0">
-                                        <label for="default_tax">{{__('manager.default_tax')}}</label>
-                                        <div class="input-group">
-                                            <input type="number" step="1" min="0"
-                                                   class="form-control @if($errors->has('default_tax')) is-invalid @endif"
-                                                   id="default_tax" placeholder="Default Tax" name="default_tax">
-                                            <div class="input-group-append">
-                                                <span class="input-group-text" id="basic-addon1">%</span>
-                                            </div>
-                                            @if($errors->has('default_tax'))
-                                                <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $errors->first('default_tax') }}</strong>
-                                        </span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                </div> --}}
-
-
-
-
-
-
                             </div>
                         </div>
                     </div>
-
 
                     <div class="col mt-3 mb-3">
                         <div class="text-right">
@@ -400,10 +306,7 @@
 
 @section('script')
 
-    <!------ Summer note -------->
-    <script>
-
-
+<script>
 
 var map;
 var marker;

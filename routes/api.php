@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\v1\Manager\AuthController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 
@@ -20,7 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/test', 'Api\TestController@test');
+// Route::post('/test', 'Api\TestController@test');
 
 Route::group(
     [
@@ -33,50 +34,50 @@ Route::group(
             //---------------- Auth --------------------//
             Route::post('/register', [\App\Http\Controllers\Api\v1\User\AuthController::class, 'register']);
             Route::post('/login', [\App\Http\Controllers\Api\v1\User\AuthController::class, 'login']);
-
+            Route::post('/parse-referral-link', [\App\Http\Controllers\Api\v1\User\AuthController::class, 'parseReferralLink']);
             //Password  Reset
-            Route::post('/password/email','Api\v1\User\ForgotPasswordController@sendResetLinkEmail');
-
-
+            Route::post('/password/email', [\App\Http\Controllers\Api\v1\User\ForgotPasswordController::class, 'sendResetLinkEmail']);
             //Print Receipt
-                Route::get('/orders/{id}/receipt','User\OrderReceiptController@show');
+            Route::get('/orders/{id}/receipt','User\OrderReceiptController@show');
 
-                Route::get('/app_data', 'Api\v1\User\AppDataController@getAppData');
+            Route::get('/app_data', [\App\Http\Controllers\Api\v1\User\AppDataController::class,'getAppData']);
 
-                Route::get('/categories', 'Api\v1\User\CategoryController@index');
+            Route::get('/categories', [\App\Http\Controllers\Api\v1\User\CategoryController::class,'index']);
 
-                Route::get('/categories/{id}/shops', 'Api\v1\User\CategoryController@getShops');
+            Route::get('/categories/{id}/shops',  [\App\Http\Controllers\Api\v1\User\CategoryController::class,'getShops']);
 
-                    //----------------- Banners ------------------------------//
-                Route::get('/banners', 'Api\v1\User\BannerController@index');
+                //----------------- Banners ------------------------------//
+            Route::get('/banners', 'Api\v1\User\BannerController@index');
 
-                    //------------------ Category-----------------------//
+                //------------------ Category-----------------------//
+            //Category product
+            Route::get('/categories/{id}/products',  [\App\Http\Controllers\Api\v1\User\CategoryController::class,'getProducts']);
+            Route::get('/categories/{id}/subcategories', [\App\Http\Controllers\Api\v1\User\CategoryController::class,'getSubcategories']);
+            Route::get('/shops',  [\App\Http\Controllers\Api\v1\User\ShopController::class,'index']);
+            Route::get('/shops/location',  [\App\Http\Controllers\Api\v1\User\ShopController::class,'shopLocation']);
+            Route::get('/shops/{id}/subcategory',  [\App\Http\Controllers\Api\v1\User\ShopController::class,'getSubCategoryByShop']);
 
-                //Category product
-                Route::get('/categories/{id}/products', 'Api\v1\User\CategoryController@getProducts');
-                Route::get('/categories/{id}/subcategories', 'Api\v1\User\CategoryController@getSubcategories');
-                Route::get('/shops', 'Api\v1\User\ShopController@index');
-
-
+            // Route::get('/delivery-boy/{category_id}/?{shop_id}/location',  [\App\Http\Controllers\Api\v1\User\DeliveryBoyReviewController::class,'deliveryBoyLocation']);
+            Route::get('/delivery-boy/{category_id}/location',  [\App\Http\Controllers\Api\v1\User\DeliveryBoyReviewController::class,'deliveryBoyLocation']);
+            Route::get('/delivery-boy',  [\App\Http\Controllers\Api\v1\User\DeliveryBoyReviewController::class,'deliveryBoySearch']);
+            
+            Route::get('/get-delivery-or-shop-by-location/{category_id}/location',  [\App\Http\Controllers\Api\v1\User\CategoryController::class,'getByShopOrDeliveryBoyLocation']);
 
             //////////////////////////// Auth /////////////////////////////////////////////////////////////
             Route::group(['middleware' => ['auth:user-api']], function () {
 
-                Route::post('/verify_mobile_number', 'Api\v1\User\AuthController@verifyMobileNumber');
-                Route::post('/mobile_verified', 'Api\v1\User\AuthController@mobileVerified');
-
-                Route::post('/delete', 'Api\v1\User\AuthController@delete');
+                Route::post('/verify_mobile_number', [\App\Http\Controllers\Api\v1\User\AuthController::class, 'verifyMobileNumber']);
+                Route::post('/mobile_verified', [\App\Http\Controllers\Api\v1\User\AuthController::class, 'mobileVerified']);
+                Route::post('/delete', [\App\Http\Controllers\Api\v1\User\AuthController::class, 'delete']);
 
                 //---------------------------- App Data -------------------------//
                 //App User Data
-                Route::get('/app_data/user', 'Api\v1\User\AppDataController@getAppDataWithUser');
+                Route::get('/app_data/user', [\App\Http\Controllers\Api\v1\User\AppDataController::class,'getAppDataWithUser']);
 
 
 
                 //---------------------- Setting ----------------------------//
-                Route::post('/update_profile', 'Api\v1\User\AuthController@updateProfile');
-
-
+                Route::put('/update_profile', [\App\Http\Controllers\Api\v1\User\AuthController::class, 'updateProfile']);
 
                 //----------------- Home ------------------------------//
                 Route::get('/home/{user_address_id}', 'Api\v1\User\HomeController@index');
@@ -96,10 +97,12 @@ Route::group(
 
 
                 //-------------------- Address ------------------------//
-                Route::get('/addresses', 'Api\v1\User\UserAddressController@index');
-                Route::post('/addresses', 'Api\v1\User\UserAddressController@store');
-                Route::post('/addresses/{address_id}', 'Api\v1\User\UserAddressController@update');
-                Route::delete('/addresses/{id}', 'Api\v1\User\UserAddressController@destroy');
+                Route::get('/addresses', [\App\Http\Controllers\Api\v1\User\UserAddressController::class, 'index']);
+                Route::post('/addresses',[\App\Http\Controllers\Api\v1\User\UserAddressController::class, 'store']);
+                Route::post('/addresses/{address_id}', [\App\Http\Controllers\Api\v1\User\UserAddressController::class, 'update']);
+                Route::delete('/addresses/{id}', [\App\Http\Controllers\Api\v1\User\UserAddressController::class, 'destroy']);
+                Route::put('/addresses/{id}/set-default', [\App\Http\Controllers\Api\v1\User\UserAddressController::class, 'setDefaultAddress']);
+                Route::get('/addresses/default', [\App\Http\Controllers\Api\v1\User\UserAddressController::class, 'getDefaultAddress']);
 
 
                 //--------------- Favourite ------------------------//
@@ -172,7 +175,6 @@ Route::group(
                 return response(['message' => ['EMall is now online']], 200);
             });
 
-
         });
 
         Route::group(['prefix' => '/v1/delivery-boy'], function () {
@@ -194,15 +196,16 @@ Route::group(
 
             Route::group(['middleware' => ['auth:delivery-boy-api']], function () {
 
-                Route::post('/verify_mobile_number', 'Api\v1\DeliveryBoy\AuthController@verifyMobileNumber');
-                Route::post('/mobile_verified', 'Api\v1\DeliveryBoy\AuthController@mobileVerified');
 
+                Route::post('/verify_mobile_number', [\App\Http\Controllers\Api\v1\DeliveryBoy\AuthController::class, 'verifyMobileNumber']);
+                Route::post('/mobile_verified', [\App\Http\Controllers\Api\v1\DeliveryBoy\AuthController::class, 'mobileVerified']);
                 //App User Data
                 Route::get('/app_data/delivery_boy', 'Api\v1\DeliveryBoy\AppDataController@getAppDataWithDeliveryBoy');
 
 
                 //---------------------- Setting ----------------------------//
-                Route::post('/update_profile', 'Api\v1\DeliveryBoy\AuthController@updateProfile');
+               // Route::post('/update_profile', 'Api\v1\DeliveryBoy\AuthController@updateProfile');
+                Route::put('/update_profile', [\App\Http\Controllers\Api\v1\DeliveryBoy\AuthController::class, 'updateProfile']);
 
 
                 //------------------- Orders ---------------------------------//
@@ -221,7 +224,8 @@ Route::group(
                 Route::get('/revenues', 'Api\v1\DeliveryBoy\RevenueController@index');
 
                 //Shop
-                Route::get('/shop', 'Api\v1\DeliveryBoy\ShopController@index');
+
+                Route::get('/shop', [\App\Http\Controllers\Api\v1\DeliveryBoy\ShopController::class, 'index']);
 
 
                 //---------------------- Transactions -----------------------------//
@@ -230,7 +234,8 @@ Route::group(
 
 
                 //----------------------- Settings --------------------//
-                Route::post('/change_status','Api\v1\DeliveryBoy\AuthController@changeStatus');
+                //Route::post('/change_status','Api\v1\DeliveryBoy\AuthController@changeStatus');
+                Route::put('/change_status', [\App\Http\Controllers\Api\v1\DeliveryBoy\AuthController::class, 'changeStatus']);
 
                 //Reviews
                 Route::get('/reviews', 'Api\v1\DeliveryBoy\ReviewController@index');
@@ -252,11 +257,11 @@ Route::group(
 
 
             //---------------- Auth --------------------//
-            Route::post('/register', 'Api\v1\Manager\AuthController@register');
-            Route::post('/login', 'Api\v1\Manager\AuthController@login');
+            Route::post('/register', [\App\Http\Controllers\Api\v1\Manager\AuthController::class, 'register']);
+            Route::post('/login', [\App\Http\Controllers\Api\v1\Manager\AuthController::class, 'login']);
 
             //Password  Reset
-            Route::post('/password/email','Api\v1\Manager\ForgotPasswordController@sendResetLinkEmail');
+            Route::post('/password/email',[\App\Http\Controllers\Api\v1\Manager\ForgotPasswordController::class,'sendResetLinkEmail']);
 
             //Print Receipt
             Route::get('/orders/{id}/receipt','Manager\OrderReceiptController@show');
@@ -268,19 +273,11 @@ Route::group(
 
             Route::group(['middleware' => ['auth:manager-api']], function () {
 
-
-                Route::post('/verify_mobile_number', 'Api\v1\Manager\AuthController@verifyMobileNumber');
-                Route::post('/mobile_verified', 'Api\v1\Manager\AuthController@mobileVerified');
-
-
-                //---------------------------- App Data -------------------------//
-                //App User Data
-                Route::get('/app_data/manager', 'Api\v1\Manager\AppDataController@getAppDataWithManager');
-
-
-                //---------------------- Setting ----------------------------//
-                Route::post('/update_profile', 'Api\v1\DeliveryBoy\AuthController@updateProfile');
-
+                Route::post('/verify_mobile_number', [\App\Http\Controllers\Api\v1\Manager\AuthController::class, 'verifyMobileNumber']);
+                Route::post('/mobile_verified', [\App\Http\Controllers\Api\v1\Manager\AuthController::class, 'mobileVerified']);
+                Route::post('/status_shop', [\App\Http\Controllers\Api\v1\Manager\AuthController::class, 'statusShopOpenOrClose']);
+                Route::get('/app_data/manager', [\App\Http\Controllers\Api\v1\Manager\AppDataController::class,'getAppDataWithManager']);
+                Route::post('/update_profile',  [\App\Http\Controllers\Api\v1\Manager\AuthController::class, 'updateProfile']);
 
                 //------------------- Orders ---------------------------------//
                 Route::get('/orders', 'Api\v1\Manager\OrderController@index');
@@ -307,29 +304,22 @@ Route::group(
                 //Upload product image
                 Route::post('/products/{id}/images','Api\v1\Manager\ProductImageController@store');
 
-
-
-                //-------------------------------- Product Images --------------------------------//
-
-
                 //Delete
                 Route::delete('/productImages/{id}','Api\v1\Manager\ProductImageController@destroy');
 
                 //-------------------------------- Shop --------------------------------//
-
-                //Index
-                Route::get('/shops','Api\v1\Manager\ShopController@index');
-                Route::patch('/shops/{id}','Api\v1\Manager\ShopController@update');
-
-                //Shop Reviews
-                Route::get('/shops/reviews','Api\v1\Manager\ShopController@showReviews');
-
-
-
+                Route::get('/shops',[\App\Http\Controllers\Api\v1\Manager\ShopController::class,'index']);
+                // Route::patch('/shops/{id}',[\App\Http\Controllers\Api\v1\Manager\ShopController::class,'update']);
+                Route::get('/shops/reviews',[\App\Http\Controllers\Api\v1\Manager\ShopController::class,'showReviews']);
                 //----------------------------- Delivery Boy ---------------------------------//
 
                 //Manage
-                Route::get('/delivery_boys/get_all','Api\v1\Manager\DeliveryBoyController@getAll');
+                Route::get('/delivery_boys/get_all',[\App\Http\Controllers\Api\v1\Manager\DeliveryBoyController::class,'getAll']);
+                Route::post('/delivery_boys/create',[\App\Http\Controllers\Api\v1\Manager\DeliveryBoyController::class,'create']);
+                Route::put('/delivery_boys/update/{id}',[\App\Http\Controllers\Api\v1\Manager\DeliveryBoyController::class,'update']);
+                Route::delete('/delivery_boys/delete/{id}',[\App\Http\Controllers\Api\v1\Manager\DeliveryBoyController::class,'destroy']);
+                Route::get('/delivery_boys_requests/accept/{id}',[\App\Http\Controllers\Api\v1\Manager\DeliveryBoyController::class, 'accept']);
+                Route::get('/delivery_boys_requests/decline/{id}',[\App\Http\Controllers\Api\v1\Manager\DeliveryBoyController::class, 'decline']);
 
 
                 //--------------------------- Coupons -------------------------------------------//
@@ -371,10 +361,15 @@ Route::group(
 
 
                 //------------------ Category-----------------------//
-                Route::get('/categories', 'Api\v1\Manager\CategoryController@index');
-
-
-
+                Route::get('/categories',[\App\Http\Controllers\Api\v1\Manager\CategoryController::class,'index']);
+                Route::get('/mainCategories',[\App\Http\Controllers\Api\v1\Manager\CategoryController::class,'mainCategories']);
+                // Route::get('/subCategories',[\App\Http\Controllers\Api\v1\Manager\CategoryController::class,'subCategories']);
+                Route::get('/mySubCategories',[\App\Http\Controllers\Api\v1\Manager\CategoryController::class,'mySubCategories']);
+                Route::post('/mySubCategories',[\App\Http\Controllers\Api\v1\Manager\CategoryController::class,'store']);
+                Route::put('/mySubCategories/update/{id}',[\App\Http\Controllers\Api\v1\Manager\CategoryController::class,'update']);
+                Route::post('/subcategories/select',[\App\Http\Controllers\Api\v1\Manager\CategoryController::class,'selectSubCategories']);
+                Route::post('/subcategories/remove/{id}',[\App\Http\Controllers\Api\v1\Manager\CategoryController::class,'remove']);
+                Route::delete('/subcategories/{id}', [\App\Http\Controllers\Api\v1\Manager\CategoryController::class, 'destroy']);
 
             });
 
