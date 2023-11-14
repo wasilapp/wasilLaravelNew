@@ -27,6 +27,10 @@ return new class extends Migration
             $table->boolean('mobile_verified')->default(false);
             $table->tinyInteger('is_approval')->default(0);
             $table->string('address')->nullable();
+            $table->string('referrer')->nullable();
+            $table->string('referrer_link')->nullable();
+            $table->string('otp')->nullable();
+            $table->timestamp('otp_expiration')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

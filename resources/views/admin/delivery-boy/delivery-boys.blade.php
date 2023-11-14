@@ -54,7 +54,7 @@
                                             <th>{{__('admin.online')}}</th>
                                             <th>{{__('admin.rating')}}</th>
                                             <th>{{__('admin.orders')}}</th>
-                                              <th>{{__('admin.shop')}}</th>
+                                              <th>{{__('admin.shop')}} / {{__('admin.agency_name')}}</th>
                                             <th>{{__('admin.revenue')}}</th>
                                             <th>{{__('admin.status')}}</th>
                                             <th style="width: 82px;">{{__('admin.action')}}</th>
@@ -80,7 +80,6 @@
                                                         <span class="bg-primary mr-1"
                                                               style="border-radius: 50%;width: 8px;height: 8px;  display: inline-block;"></span> {{__('admin.online')}}
                                                     @endif
-
                                                 </td>
                                                 <td>
                                                     @for($i=0;$i<5;$i++)
@@ -90,7 +89,14 @@
                                                     <p class="d-inline">({{$delivery_boy['total_rating']}})</p>
                                                 </td>
                                                 <td>{{$delivery_boy->orders_count}}</td>
-                                                 <td>{{ ($delivery_boy->shop ? $delivery_boy->shop->name : 'FreeLance' )}}</td>
+                                                {{$delivery_boy->category_id}}
+                                                <td>
+                                                    @if ($delivery_boy->category_id == 1)
+                                                        {{$delivery_boy->shop->name}}
+                                                    @else
+                                                        {{$delivery_boy->agency_name}}
+                                                    @endif
+                                                </td>
                                                 <td>{{\App\Helpers\AppSetting::$currencySign}} {{\App\Helpers\CurrencyUtil::doubleToString($delivery_boy->revenue)}}</td>
                                                 <td>
                                                     @if ($delivery_boy->is_approval == 0)
@@ -113,6 +119,9 @@
                                                     <a href="{{route('admin.delivery-boy.show',['id'=>$delivery_boy->id])}}"
                                                        style="font-size: 20px"> <i
                                                             class="mdi mdi-eye "></i></a>
+                                                    <a href="{{route('admin.delivery-boy.edit',['id'=>$delivery_boy->id])}}" class="ml-1"
+                                                        style="font-size: 20px"> <i
+                                                                class="mdi mdi-pencil"></i></a>
                                                     <form method="POST" action="{{route('admin.delivery-boy.destroy', [$delivery_boy->id])}}" class="d-inline" onsubmit="return confirm('Delete this user permanently?')">
                                                         @csrf
                                                         <input type="hidden" name="_method" value="DELETE">

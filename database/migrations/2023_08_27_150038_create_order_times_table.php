@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('order_times', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('order_date', 250)->nullable();
-            $table->string('order_time', 250)->nullable();
+            $table->string('order_time_from', 250)->nullable();
+            $table->string('order_time_to', 250)->nullable();
             $table->integer('order_id')->nullable();
             $table->timestamps();
         });

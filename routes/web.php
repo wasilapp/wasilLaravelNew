@@ -7,19 +7,22 @@ use App\Models\DeliveryBoy;
 use App\Models\ShopRequest;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\ShopController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\AppDataController;
 use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\WalletController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DeliveryBoyController;
 use App\Http\Controllers\Admin\ShopRequestController;
 use App\Http\Controllers\Admin\SubCategoryController;
-use App\Http\Controllers\Admin\DeliveryBoyController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\ProductImageController;
 use App\Http\Controllers\Admin\TransactionController;
+use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\ProductImageController;
 use App\Http\Controllers\Admin\WalletCouponsController;
-use App\Http\Controllers\Admin\UserController;
 
 Route::get('/testView',[App\Http\Controllers\Controller::class,'testView']);
 
@@ -102,6 +105,12 @@ Route::get('/',[App\Http\Controllers\Admin\Auth\LoginController::class,'showLogi
     // });
 
     Route::group(['middleware'=>'auth:admin','prefix'=>'/admin'],function (){
+
+
+        Route::POST('/store-token', [\App\Http\Controllers\FCMController::class, 'updateDeviceToken'])->name('admin.store.token');
+       // Route::POST('/send-web-notification', [NotificationSendController::class, 'sendNotification'])->name('send.web-notification');
+        Route::get('/get-Latest-Notifications', [\App\Http\Controllers\FCMController::class, 'getLatestNotifications'])->name('admin.getLatestNotifications');
+
         /* Route::get('/status/{id}/orders' , function($id){
             $orders =  Order::with('shop', 'orderPayment')->where('status',$id)->orderBy('updated_at','DESC')->paginate(10);
                 return view('admin.orders.orders')->with([
@@ -112,8 +121,8 @@ Route::get('/',[App\Http\Controllers\Admin\Auth\LoginController::class,'showLogi
         //----------------------------- Auth -----------------------------------//
         Route::get('/logout',[\App\Http\Controllers\Admin\Auth\LoginController::class,'logout'])->name('admin.logout');
 
-       //  Route::get('/create/privacy',[AdminController::class,'create_privacy'])->name('user.create.privacy');
-       //  Route::post('/create/privacy',[AdminController::class,'updatePrivacy'])->name('user.store.privacy');
+        Route::get('/create/privacy',[AdminController::class,'create_privacy'])->name('user.create.privacy');
+        Route::post('/create/privacy',[AdminController::class,'updatePrivacy'])->name('user.store.privacy');
 
 
         // ------------------------ Admin ---------------------------//
@@ -123,13 +132,14 @@ Route::get('/',[App\Http\Controllers\Admin\Auth\LoginController::class,'showLogi
         Route::patch('/setting/updateLocale/{langCode}',[AdminController::class,'updateLocale'])->name('admin.setting.updateLocale');
 
         //----------------------- Add Data -----------------------------//
-        Route::get('/app_data','Admin\AppDataController@index')->name('admin.appdata.index');
-        Route::post('/app_data','Admin\AppDataController@create')->name('admin.appdata.create');
+        Route::get('/app_data', [AppDataController::class,'index'])->name('admin.appdata.index');
+        Route::post('/app_data',[AppDataController::class,'create'])->name('admin.appdata.create');
 
 
         //----------------------- Banner -----------------------------//
         Route::prefix('/banners')->group(function () {
             Route::get('/',[BannerController::class,'index'])->name('admin.banners.index');
+            Route::get('/create',[BannerController::class,'create'])->name('admin.banners.create');
             Route::post('/store',[BannerController::class,'store'])->name('admin.banners.store');
             Route::delete('/delete',[BannerController::class,'destroy'])->name('admin.banners.destroy');
         });
@@ -141,6 +151,28 @@ Route::get('/',[App\Http\Controllers\Admin\Auth\LoginController::class,'showLogi
             Route::get('/{id}',[UserController::class,'edit'])->name('admin.users.edit');
             Route::patch('/{id}',[UserController::class,'update'])->name('admin.users.update');
             Route::DELETE('/{id}',[UserController::class,'destroy'])->name('admin.users.destroy');
+
+        });
+
+        Route::prefix('users-banners')->group(function () {
+            Route::get('/',[UserController::class,'getBanners'])->name('admin.users-banners.index');
+            Route::get('/create',[UserController::class,'createBanners'])->name('admin.users-banners.create');
+            Route::post('/store',[UserController::class,'storeBanners'])->name('admin.users-banners.store');
+            Route::delete('/delete/{id}',[UserController::class,'destroyBanners'])->name('admin.users-banners.destroy');
+        });
+
+        Route::prefix('shops-banners')->group(function () {
+            Route::get('/',[ShopController::class,'getBanners'])->name('admin.shops-banners.index');
+            Route::get('/create',[ShopController::class,'createBanners'])->name('admin.shops-banners.create');
+            Route::post('/store',[ShopController::class,'storeBanners'])->name('admin.shops-banners.store');
+            Route::delete('/delete/{id}',[ShopController::class,'destroyBanners'])->name('admin.shops-banners.destroy');
+        });
+
+        Route::prefix('drivers-banners')->group(function () {
+            Route::get('/',[DeliveryBoyController::class,'getBanners'])->name('admin.drivers-banners.index');
+            Route::get('/create',[DeliveryBoyController::class,'createBanners'])->name('admin.drivers-banners.create');
+            Route::post('/store',[DeliveryBoyController::class,'storeBanners'])->name('admin.drivers-banners.store');
+            Route::delete('/delete/{id}',[DeliveryBoyController::class,'destroyBanners'])->name('admin.drivers-banners.destroy');
         });
         //-------------------------------- Category --------------------------------//
         Route::prefix('/categories')->group(function () {
@@ -158,21 +190,40 @@ Route::get('/',[App\Http\Controllers\Admin\Auth\LoginController::class,'showLogi
             Route::get('/shops', [SubCategoryController::class, 'getSubCategoryShop'])->name('admin.sub-categories-shops.index');
             Route::get('/create', [SubCategoryController::class, 'create'])->name('admin.sub-categories.create');
             Route::post('/store', [SubCategoryController::class, 'store'])->name('admin.sub-categories.store');
+            Route::post('/shop/store', [SubCategoryController::class, 'shopstoresubcategories'])->name('admin.sub-categories.shop.store');
             Route::get('/show/{id}', [SubCategoryController::class, 'show'])->name('admin.sub-categories.show');
             Route::get('/edit/{id}', [SubCategoryController::class, 'edit'])->name('admin.sub-categories.edit');
             Route::patch('/update/{id}', [SubCategoryController::class, 'update'])->name('admin.sub-categories.update');
             Route::get('/delete/{id}', [SubCategoryController::class, 'destroy'])->name('admin.sub-categories.delete');
             Route::get('/sub-categories-requests', [SubCategoryController::class, 'SubCategoriesRequest'])->name('admin.sub-categories-requests.index');
+            Route::get('/sub-categories-requests/{id}', [SubCategoryController::class, 'showSubCategoriesRequest'])->name('admin.sub-categories-requests.show');
             Route::post('/sub-categories-requests/accept/{id}',[SubCategoryController::class, 'accept'])->name('admin.sub-categories-requests.accept');
+            Route::post('/sub-categories-requests/accept2/{id}',[SubCategoryController::class, 'accept2'])->name('admin.sub-categories-requests.accept2');
             Route::post('/sub-categories-requests/decline/{id}',[SubCategoryController::class, 'decline'])->name('admin.sub-categories-requests.decline');
+            Route::post('/sub-categories-requests/decline2/{id}',[SubCategoryController::class, 'decline2'])->name('admin.sub-categories-requests.decline2');
+
+        });
+        //-------------------------------- wallets --------------------------------//
+        Route::prefix('/wallets')->group(function () {
+            Route::get('/', [WalletController::class, 'index'])->name('admin.wallets.index');
+            Route::get('/wallets-requests', [WalletController::class, 'walletsRequest'])->name('admin.wallets-requests.index');
+            Route::post('/wallets-requests/accept/{id}',[WalletController::class, 'accept'])->name('admin.wallets-requests.accept');
+            Route::post('/wallets-requests/accept2/{id}',[WalletController::class, 'accept2'])->name('admin.wallets-requests.accept2');
+            Route::post('/wallets-requests/decline/{id}',[WalletController::class, 'decline'])->name('admin.wallets-requests.decline');
+            Route::post('/wallets-requests/decline2/{id}',[WalletController::class, 'decline2'])->name('admin.wallets-requests.decline2');
 
         });
         //-------------------------------- Coupon --------------------------------//
         Route::prefix('/coupons')->group(function () {
             Route::get('/',[CouponController::class,'index'])->name('admin.coupons.index');
+            Route::get('/category/{id}',[CouponController::class,'couponsByCategory'])->name('admin.coupons.category.index');
+            Route::get('/category/{id}/requests',[CouponController::class,'couponsRequestsByCategory'])->name('admin.coupons.requests.index');
             Route::get('/create',[CouponController::class,'create'])->name('admin.coupons.create');
             Route::post('/store',[CouponController::class,'store'])->name('admin.coupons.store');
-            Route::get('/{id}',[CouponController::class,'show'])->name('admin.coupons.show');
+            Route::get('/{id}',[CouponController::class,'show'])->name('admin.coupons-requests.show');
+            Route::get('/coupons-requests/accept/{id}',[CouponController::class, 'accept'])->name('admin.coupons-requests.accept');
+            Route::get('/coupons-requests/decline/{id}',[CouponController::class, 'decline'])->name('admin.coupons-requests.decline');
+
             Route::get('/{id}/edit',[CouponController::class,'edit'])->name('admin.coupons.edit');
             Route::patch('/{id}',[CouponController::class,'update'])->name('admin.coupons.update');
             Route::delete('/{id}',[CouponController::class,'destroy'])->name('admin.coupons.destroy');
@@ -247,15 +298,17 @@ Route::get('/',[App\Http\Controllers\Admin\Auth\LoginController::class,'showLogi
         Route::get('/delivery-boys/{id}',[DeliveryBoyController::class,'show'])->name('admin.delivery-boy.show');
         Route::get('/delivery-boy/create',[DeliveryBoyController::class,'create'])->name('admin.delivery-boy.create');
         Route::post('/delivery-boys',[DeliveryBoyController::class,'store'])->name('admin.delivery-boy.store');
-        Route::post('/delivery-boys/{id}',[DeliveryBoyController::class,'update'])->name('admin.delivery-boy.update');
+        Route::get('/delivery-boys/edit/{id}',[DeliveryBoyController::class,'edit'])->name('admin.delivery-boy.edit');
+        Route::patch('/delivery-boys/update/{id}',[DeliveryBoyController::class,'update'])->name('admin.delivery-boy.update');
         Route::DELETE('/delivery-boys/{id}',[DeliveryBoyController::class,'destroy'])->name('admin.delivery-boy.destroy');
+
         //Delete review
         Route::delete('/delivery-boy-reviews/{id}',[DeliveryBoyController::class,'destroy'])->name('admin.delivery-boy.review.delete');
         //------------------------------ Delivery Boy Request --------------------------//
         Route::get('/delivery_boys_requests',[DeliveryBoyController::class, 'deliveryBoyRequest'])->name('admin.delivery-boy-request.index');
         Route::get('/delivery_boys_requests/accept/{id}',[DeliveryBoyController::class, 'accept'])->name('admin.delivery-boy-request.accept');
         Route::get('/delivery_boys_requests/decline/{id}',[DeliveryBoyController::class, 'decline'])->name('admin.delivery-boy-request.decline');
-
+        Route::get('/delivery_boys_requests/{id}',[DeliveryBoyController::class, 'deliveryBoyRequestshow'])->name('admin.delivery-boy-request.show');
         Route::patch('/delivery_boys_requests/{id}',[DeliveryBoyController::class, 'update'])->name('admin.delivery-boy-request.update');
 
         Route::prefix('/transactions')->group(function () {
@@ -270,8 +323,13 @@ Route::get('/',[App\Http\Controllers\Admin\Auth\LoginController::class,'showLogi
         });
 
         //-----------------  FCM Notifications ------------------------//
-        Route::get('/notifications','Admin\NotificationController@create')->name('admin.notifications.create');
-        Route::post('/notifications','Admin\NotificationController@send')->name('admin.notifications.send');
+        Route::get('/notifications/index',[NotificationController::class,'index'])->name('admin.notifications.index');
+        Route::get('/notifications',[NotificationController::class,'create'])->name('admin.notifications.create');
+        Route::post('/notifications',[NotificationController::class,'store'])->name('admin.notifications.send');
+
+       // Route::get('/notifications/mark-all-read', [NotificationController::class, 'notificationMarkAllRead'])->name('notification.mark.all.read');
+        Route::get('/notifications/create', [NotificationController::class, 'create'])->name('admin.notifications.create');
+        Route::post('/notifications/store', [NotificationController::class, 'store'])->name('notifications.store');
 
 
     });

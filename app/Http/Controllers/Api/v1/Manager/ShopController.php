@@ -34,6 +34,8 @@ class ShopController extends Controller
             'avatar_url' => $manager->avatar_url,
             'license' => $manager->license,
             'is_approval' => $manager->is_approval,
+            'referrer' => $manager->referrer,
+            'referrer_link' => $manager->referrer_link,
             'shop_name_en' => $manager->shop->getTranslation('name', 'en'),
             'shop_name_ar' => $manager->shop->getTranslation('name', 'ar'),
             'barcode' => $manager->shop->barcode,

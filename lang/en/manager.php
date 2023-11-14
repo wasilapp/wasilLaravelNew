@@ -170,6 +170,7 @@ return [
 
     'operations' => 'operations',
     'add-new-sub_category' => 'add new subService',
+    'select-sub_category' => 'select subService',
     'add' => 'Add',
     'delete'=>'Delete',
 ];

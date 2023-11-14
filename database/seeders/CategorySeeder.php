@@ -27,6 +27,8 @@ class CategorySeeder extends Seeder
                 'type' => 'water',
                 'commesion' => 0.1,
                 'image_url' => "uploads/categories-icons/1.jpeg",
+                'start_work_time'=>'10:00',
+                'end_work_time'=>'20:00'
             ],
             [
                 'title' => [
@@ -40,6 +42,8 @@ class CategorySeeder extends Seeder
                 'type' => 'gas',
                 'commesion' => 0.1,
                 'image_url' => "uploads/categories-icons/2.jpeg",
+                'start_work_time'=>'07:00',
+                'end_work_time'=>'18:00'
             ],
 
         ];

@@ -23,7 +23,7 @@ class RegisterController extends Controller
         return view('manager.auth.register');
     }
 
-    public function create(Request $request) 
+    public function create(Request $request)
     {
         $this->validate($request,[
             'name'=>'required',

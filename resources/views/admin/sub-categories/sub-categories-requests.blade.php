@@ -63,7 +63,7 @@
                                         <td>
                                             <div>
                                                 <img src="{{asset($sub_category->image_url)}}"
-                                                     style="object-fit: cover" alt="OOps"
+                                                     style="object-fit: cover" alt="Image"
                                                      height="40px"
                                                      width="40px">
                                             </div>
@@ -82,23 +82,21 @@
                                             {{$sub_category->price}}
                                         </td>
                                         <td class="d-flex gap-2">
-                                            <form action="{{ route('admin.sub-categories-requests.accept', ['id' => $shop->id]) }}" method="POST">
+                                            
+                                            <a href="{{ route('admin.sub-categories-requests.show',$sub_category->id ) }}"
+                                                style="font-size: 20px"> <i
+                                                     class="mdi mdi-eye"></i></a>
+                                            {{-- <form action="{{ route('admin.sub-categories-requests.accept', ['id' => $sub_category->id]) }}" method="POST">
                                                 @csrf
                                                 <button type="submit" class="btn btn-primary waves-effect waves-light mr-2">{{__('admin.accept')}}</button>
                                                 <input type="hidden" name="mobile_verified" value="1">
                                             </form>
 
-                                            <form action="{{ route('admin.sub-categories-requests.decline', ['id' => $shop->id]) }}" method="POST">
+                                            <form action="{{ route('admin.sub-categories-requests.decline', ['id' => $sub_category->id]) }}" method="POST">
                                                 @csrf
                                                 <button type="submit" class="btn btn-danger waves-effect waves-light">{{__('admin.decline')}}</button>
                                                 <input type="hidden" name="mobile_verified" value="0">
-                                            </form>
-                                            {{-- <a href="{{route('admin.sub-categories.edit',['id'=>$sub_category->id])}}"
-                                               style="font-size: 20px"> <i
-                                                    class="mdi mdi-pencil"></i></a>
-                                            <a onclick="return confirm('Deleting this subCategories. Are you sure to delete it?')"
-                                                href="{{route('admin.sub-categories.delete',['id'=>$sub_category->id])}}" style="font-size: 20px"> <i
-                                                    class="mdi mdi-trash-can"></i></a> --}}
+                                            </form> --}}
                                         </td>
                                     </tr>
                                 @endforeach

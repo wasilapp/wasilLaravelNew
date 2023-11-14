@@ -28,164 +28,6 @@
             </div>
         </div>
 
-
-        <div class="row">
-            <div class="col-xl-9">
-                <div class="card-box pb-2">
-                    <div class="float-right d-none d-md-inline-block">
-                        <h4 class="header-title mb-3">{{__('admin.current_week')}}</h4>
-                    </div>
-
-                    <h4 class="header-title mb-3">{{__('admin.sales_analytics')}}</h4>
-
-                    <div class="row text-center">
-                        <div class="col-md-4">
-                            <p class="text-muted mb-0 mt-3">{{__('admin.weekly_orders')}}</p>
-                            <h2 class="font-weight-normal mb-3">
-                                <small class="mdi mdi-checkbox-blank-circle text-primary align-middle mr-1"></small>
-                                <span>{{$total_weekly_orders}}</span>
-                            </h2>
-                        </div>
-                        <div class="col-md-4">
-                            <p class="text-muted mb-0 mt-3">{{__('admin.weekly_selling')}}</p>
-                            <h2 class="font-weight-normal mb-3">
-                                <small class="mdi mdi-checkbox-blank-circle text-success align-middle mr-1"></small>
-                                <span>{{$total_weekly_products}}</span>
-                            </h2>
-                        </div>
-                        <div class="col-md-4">
-                            <p class="text-muted mb-0 mt-3">{{__('admin.weekly_revenue')}}</p>
-                            <h2 class="font-weight-normal mb-3">
-                                <small class="mdi mdi-checkbox-blank-circle text-success align-middle mr-1"></small>
-                                <span>${{$total_weekly_revenue}}</span>
-                            </h2>
-                        </div>
-                    </div>
-                    {{$chart->container()}}
-
-                </div> <!-- end card-box -->
-            </div>
-            <div class="col-xl-3">
-                <div class="col-12">
-                    <div class="widget-rounded-circle card-box">
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="avatar-lg rounded bg-soft-primary">
-                                    <i class="dripicons-wallet font-24 avatar-title text-primary"></i>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-right">
-                                    <h3 class="text-dark mt-1">$<span data-plugin="counterup">{{$revenue}}</span></h3>
-                                    <p class="text-muted mb-1 text-truncate">{{__('admin.total_revenue')}}</p>
-                                </div>
-                            </div>
-                        </div> <!-- end row-->
-                    </div> <!-- end widget-rounded-circle-->
-                </div> <!-- end col-->
-
-                <div class="col-12">
-                    <div class="widget-rounded-circle card-box">
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="avatar-lg rounded bg-soft-success">
-                                    <i class="dripicons-basket font-24 avatar-title text-success"></i>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-right">
-                                    <h3 class="text-dark mt-1"><span data-plugin="counterup">{{$orders_count}}</span>
-                                    </h3>
-                                    <p class="text-muted mb-1 text-truncate">{{__('admin.orders')}}</p>
-                                </div>
-                            </div>
-                        </div> <!-- end row-->
-                    </div> <!-- end widget-rounded-circle-->
-                </div> <!-- end col-->
-
-                <div class="col-12">
-                    <div class="widget-rounded-circle card-box">
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="avatar-lg rounded bg-soft-info">
-                                    <i class="dripicons-store font-24 avatar-title text-info"></i>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-right">
-                                    <h3 class="text-dark mt-1"><span data-plugin="counterup">{{$products_count}}</span>
-                                    </h3>
-                                    <p class="text-muted mb-1 text-truncate">{{__('admin.products_sell')}}</p>
-                                </div>
-                            </div>
-                        </div> <!-- end row-->
-                    </div> <!-- end widget-rounded-circle-->
-                </div> <!-- end col-->
-                <div class="col-12">
-                    <div class="widget-rounded-circle card-box">
-                        <div class="row">
-                            <form action="{{ route('admin.shop_requests.accept', ['id' => $shop->id]) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-primary waves-effect waves-light mr-2">{{__('admin.accept')}}</button>
-                                <input type="hidden" name="mobile_verified" value="1">
-                            </form>
-
-                            <form action="{{ route('admin.shop_requests.decline', ['id' => $shop->id]) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-danger waves-effect waves-light">{{__('admin.decline')}}</button>
-                                <input type="hidden" name="mobile_verified" value="0">
-                            </form>
-                        </div> <!-- end row-->
-                    </div> <!-- end widget-rounded-circle-->
-                </div> <!-- end col-->
-            </div>
-        </div>
-        <div class="row">
-            <div class="card w-100">
-                <div class="card-body">
-                    <div class="row">
-                        <h4 class="col-12">{{ trans('admin.subServices') }}</h4>
-                                    <div class="tab__content w-100">
-                                        <div class="table-container text-center" >
-                                            <table class="table table-striped table-hover"  id="option-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">{{ trans('admin.subService') }} </th>
-                                                        <th scope="col">{{ trans('manager.price') }} </th>
-                                                        <th scope="col">{{ trans('manager.quantity') }} </th>
-                                                        <th scope="col">{{ trans('admin.status') }} </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody class="option">
-                                                    @forelse ($shopSubcategories as $subcategory )
-                                                    
-                                                            <tr data-id="{{ $subcategory->id }}">
-                                                                <td > {{  $subcategory->title }} </td>
-                                                                <td >{{  $subcategory->pivot->price }}</td>
-                                                                <td>{{ $subcategory->pivot->quantity }}</td>
-                                                                <td>
-                                                                    @if($subcategory->is_approval ==1 )   
-                                                                    <p class="text-success">{{ trans('admin.Accepted') }}</p> 
-                                                                    @else
-                                                                    <p class="text-warning">{{ trans('admin.pending') }}</p> 
-                                                                    @endif
-                                                                </td>
-                                                            </tr>
-                                                        
-                                            @empty
-                                                <p>there are no subservies yet</p>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                        </div>
-                                       
-                                        
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="row">
             <div class="col-12 col-md-6">
                 <div class="card">
@@ -193,8 +35,8 @@
                         <div class="row justify-content-center">
                             <div class="col-12">
                                 <img class="card-img-top" style="object-fit: cover" height="300"
-                                     src="{{ asset($shop['manager']->license) }}"
-                                     alt="Card image cap">
+                                    src="{{ asset($shop['manager']->license) }}"
+                                    alt="license">
                             </div>
                             <div class="col-12 mt-3">
                                 <h4 class="card-title">
@@ -219,12 +61,12 @@
                                 <div class="row text-right">
                                     <div class="col">
                                         <a class="btn btn-outline-primary waves-effect waves-light mr-2"
-                                           href="{{route('admin.shops.reviews.show',['id'=> $shop->id])}}">
+                                        href="{{route('admin.shops.reviews.show',['id'=> $shop->id])}}">
                                             <i class="mdi mdi-star-outline mr-1"></i> {{__('admin.review')}}
                                         </a>
 
                                         <a target="_blank" class="  btn btn-outline-primary waves-effect waves-light"
-                                           href="{{\App\Models\Shop::generateGoogleMapLocationUrl($shop->latitude,$shop->longitude)}}">
+                                        href="{{\App\Models\Shop::generateGoogleMapLocationUrl($shop->latitude,$shop->longitude)}}">
                                             <i class="mdi mdi-map-marker-outline mr-1"></i> {{__('manager.location')}}
                                         </a>
                                     </div>
@@ -247,9 +89,9 @@
                             <div class="widget-rounded-circle card-box">
                                 <div class="row align-items-center">
                                     <div class="col-auto">
-                                        <div class="avatar-lg"> 
+                                        <div class="avatar-lg">
                                             <img src="{{ asset($shop['manager']->avatar_url) }}"
-                                                 class="img-fluid rounded-circle" alt="user-img"/>
+                                                class="img-fluid rounded-circle" alt="Image"/>
                                         </div>
                                     </div>
                                     <div class="col">
@@ -272,7 +114,7 @@
                                         <div class="col-auto">
                                             <div class="avatar-lg">
                                                 <img src="{{asset('storage/'.$manager->avatar_url)}}"
-                                                     class="img-fluid rounded-circle" alt="user-img"/>
+                                                    class="img-fluid rounded-circle" alt="Image"/>
                                             </div>
                                         </div>
                                         <div class="col">
@@ -300,12 +142,25 @@
                         @endforeach
                     @endif
                 </div>
+                <div class="col-12 text-center">
+                    <div class="widget-rounded-circle card-box">
+                        <div class="row text-center">
+                            <form action="{{ route('admin.shop_requests.accept', ['id' => $shop->id]) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-primary waves-effect waves-light mr-2">{{__('admin.accept')}}</button>
+                                <input type="hidden" name="mobile_verified" value="1">
+                            </form>
 
+                            <form action="{{ route('admin.shop_requests.decline', ['id' => $shop->id]) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-danger waves-effect waves-light">{{__('admin.decline')}}</button>
+                                <input type="hidden" name="mobile_verified" value="0">
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-
         </div>
-
-
     </div>
 
 @endsection

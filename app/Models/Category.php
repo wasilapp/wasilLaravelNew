@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Translatable\HasTranslations;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 /**
  * @method static orderBy(string $string, string $string1)
  * @method static find($id)
@@ -19,7 +20,8 @@ class Category extends Model
     protected $table = 'categories';
 
     protected $fillable = [
-        'title','description', 'commesion', 'image_url','delivery_fee','type','active'
+        'title','description', 'commesion', 'image_url','delivery_fee','type','active','start_work_time',
+        'end_work_time','expedited_fees','scheduler_fees'
     ];
 
     public $translatable = ['title','description'];
@@ -29,6 +31,10 @@ class Category extends Model
     //     return $this->hasMany(Product::class);
     // }
 
+    public function category()
+    {
+        return $this->hasMany(Category::class);
+    }
     public function subCategories()
     {
         return $this->hasMany(SubCategory::class);
@@ -37,8 +43,6 @@ class Category extends Model
     public function subAdminCategories()
     {
         return $this->hasMany(SubCategory::class)->where('is_primary', 1);
-        // $subCategoriesAdmin =  $this->hasMany(SubCategory::class);
-        // return $subCategoriesAdmin->where('is_primary', 1);
     }
 
     public function shops()

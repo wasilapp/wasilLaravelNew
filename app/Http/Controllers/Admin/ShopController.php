@@ -15,9 +15,11 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreRequest;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\Banner;
 use App\Models\SubCategory;
 use Illuminate\Support\Facades\Hash;
 use ArielMejiaDev\LarapexCharts\LarapexChart;
+use Illuminate\Support\Facades\Validator;
 
 use function Ramsey\Uuid\v1;
 
@@ -230,7 +232,11 @@ class ShopController extends Controller
     {
         $shop = $this->shop->with('manager')->find($id);
         $shopSubcategories = $shop->subCategory;
-        $subcategories = $this->subCategory->where('category_id', $shop->category_id )->where('is_approval', 1)->get();
+        $subcategories = $this->subCategory->where('category_id', $shop->category_id )
+        ->where('is_approval', 1)
+        ->where('is_primary', 1)
+        ->orwhere('shop_id', $shop->id)
+        ->get();
         //dd($subcategories );
         $available_managers = $this->manager->doesnthave('shop')->get();
         return view('admin.shops.edit-shop')->with([
@@ -240,7 +246,7 @@ class ShopController extends Controller
             'shopSubcategories' => $shopSubcategories,
         ]);
 
-    } 
+    }
 
 
     public function update(Request $request)
@@ -308,9 +314,9 @@ class ShopController extends Controller
             } else {
                 $data['open'] = false;
             }
-            
+
             $shop->update($data);
-            
+
             if ($request->has('subcategories')) {
                 $shop->subCategory()->sync($request['subcategories']);
             }
@@ -371,5 +377,57 @@ class ShopController extends Controller
             return generateBarcodeNumber();
         }
         return $number;
+    }
+
+    public function getBanners(){
+        $banners = Banner::where('type','shop')->get();
+        return view('admin.shops.banners.banners')->with([
+            'banners' => $banners,
+        ]);
+    }
+    public function createBanners(){
+        return view('admin.shops.banners.add-banner-images');
+    }
+    public function storeBanners(Request $request){
+        try {
+            $validator = Validator::make($request->all(),[
+                'url' => 'required',
+                'type' => 'required',
+            ]);
+            if ($validator->fails())
+            {
+                return redirect()->route('admin.shops-banners.create')->with(['error' => $validator->errors()->all()]);
+            }
+            DB::beginTransaction ();
+            if ($request->has('url')) {
+               $url  =  $this->upload($request->url,'url_banner');
+            }
+
+            $bannerData = [
+                'url' => $url,
+                'type' => $request->input ('type'),
+            ];
+            Banner::create($bannerData);
+            DB::commit();
+            return redirect()->route('admin.shops-banners.index')->with(['message' => 'banner has been created']);
+        } catch(\Exception $e){
+            Log::info($e->getMessage());
+            DB::rollBack();
+            return $e;
+            return redirect()->route('admin.shops-banners.create')->with(['error' => 'Something wrong']);
+        }
+    }
+
+    public function destroyBanners($id){
+        try {
+            $banner =  Banner::findOrFail($id);
+            DB::beginTransaction();
+            $banner->delete();
+            DB::commit();
+            return redirect()->route('admin.shops-banners.index')->with('success','Banner deleted successfully');
+        }catch(\Exception $e){
+            DB::rollBack();
+            return redirect()->route('admin.shops-banners.index')->with(['error' => 'Banner not deleted']);
+        }
     }
 }

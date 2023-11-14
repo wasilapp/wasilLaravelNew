@@ -152,7 +152,7 @@ class ManagerController extends Controller
                 'public_email' => 'required',
                 'address' => 'required'
             ]);
- 
+
         $manager = Manager::find($id);
 
         if ($request->hasFile('image')) {

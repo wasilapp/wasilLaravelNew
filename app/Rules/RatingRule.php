@@ -35,6 +35,6 @@ class RatingRule implements Rule
      */
     public function message()
     {
-        return 'Rating must between in 1 to 5';
+        return trans('message.rating_between');
     }
 }

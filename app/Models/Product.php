@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Order;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Product extends Model
 {
+    protected $fillable = ['order_id','sub_categories_id','quantity','price','total'];
 
     public function shop(){
         return $this->belongsTo(Shop::class);
@@ -54,10 +56,11 @@ class Product extends Model
     }
 
     public function subCategory(){
-        return $this->belongsTo(SubCategory::class);
-
+        return $this->belongsTo(SubCategory::class, 'sub_categories_id' ,'id'); 
     }
-
+    public function order(){
+        return $this->belongsTo(Order::class);
+    }
 
     public static function getDiscountedPrice($price,$discount){
         return $price*(100-$discount)/100;

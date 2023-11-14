@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::table('assign_to_deliveries', function (Blueprint $table) {
             $table->foreign(['delivery_boy_id'])->references(['id'])->on('delivery_boys');
+            $table->foreign(['order_id'])->references(['id'])->on('orders');
+
         });
     }
 
@@ -27,6 +29,7 @@ return new class extends Migration
     {
         Schema::table('assign_to_deliveries', function (Blueprint $table) {
             $table->dropForeign('assign_to_deliveries_delivery_boy_id_foreign');
+            $table->dropForeign('assign_to_deliveries_order_id_foreign');
         });
     }
 };

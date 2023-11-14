@@ -26,7 +26,6 @@
             </div>
         </div>
 
-
             <div class="row">
                 <div class="col-12">
                     <div class="card">
@@ -50,7 +49,7 @@
 
                         </div><!-- end card-body-->
 
-                        <div class="d-none" id="tpl">
+                        {{-- <div class="d-none" id="tpl">
                             <div class="card mt-1 mb-0 shadow-none border dropzone-previews" >
                                 <div class="p-2">
                                     <div class="row align-items-center">
@@ -72,7 +71,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </div> <!-- end card-->
                 </div><!-- end col -->
             </div>
@@ -87,7 +86,7 @@
 @endsection
 
 @section('script')
-    <script>
+    {{-- <script>
         window.onload = function() {
 
             var banners = {!! json_encode($banners) !!};
@@ -151,7 +150,7 @@
             });
         }
 
-    </script>
+    </script> --}}
 
 
     <!-- Page js-->

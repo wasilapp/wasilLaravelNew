@@ -38,11 +38,15 @@ class CategoryController extends Controller
             if ($request->has('image')) {
                 $path  =  $this->upload($request->image,'categories-icons');
             }
-            
+
             $data = [
                 'image_url' => $path,
                 'commesion' => $request->input ('commesion'),
                 'delivery_fee' => $request->input ('delivery_fee'),
+                'start_work_time' => $request->input ('start_work_time'),
+                'end_work_time' => $request->input ('end_work_time'),
+                'expedited_fees' => $request->input ('expedited_fees'),
+                'scheduler_fees' => $request->input ('scheduler_fees'),
                 'type' => $request->input ('type'),
                 'active' => 1,
                 'title' => [
@@ -54,7 +58,6 @@ class CategoryController extends Controller
                     'ar' => $request->input('description')['ar']
                 ],
             ];
-
             $this->category->create($data);
             DB::commit();
             return redirect()->route('admin.categories.index')->with('success','Category added successfully');
@@ -85,7 +88,7 @@ class CategoryController extends Controller
     {
         //dd($request->all());
         try {
-           
+
             DB::beginTransaction ();
             if (isset($request->active)) {
                 $this->category->activateCategory($id);
@@ -99,6 +102,10 @@ class CategoryController extends Controller
             $data = [
                 'commesion' => $request->input ('commesion'),
                 'delivery_fee' => $request->input ('delivery_fee'),
+                'start_work_time' => $request->input ('start_work_time'),
+                'end_work_time' => $request->input ('end_work_time'),
+                'expedited_fees' => $request->input ('expedited_fees'),
+                'scheduler_fees' => $request->input ('scheduler_fees'),
                 'type' => $request->input ('type'),
                 'active' => $active,
                 'title' => [

@@ -64,7 +64,7 @@
                             <p class="card-text">{{__('admin.you_can_enable_or_disable_payment_methods')}}</p>
 
                             <div class="row">
-                                <div class="col-12 col-md-12 mt-1">
+                                {{-- <div class="col-12 col-md-12 mt-1">
                                     <div class="custom-checkbox custom-control">
                                         <input class="custom-control-input" type="checkbox" name="stripe" id="stripe"
                                                @if(\App\Models\AppData::paymentMethodEnabled($appData->support_payments,\App\Models\Order::$ORDER_PT_STRIPE)) checked @endif
@@ -82,10 +82,10 @@
                                         >
                                         <label class="custom-control-label" for="razorpay">Razorpay</label>
                                     </div>
-                                </div>
+                                </div> --}}
 
 
-                                <div class="col-12 col-md-12 mt-2">
+                                {{-- <div class="col-12 col-md-12 mt-2">
                                     <div class="custom-checkbox custom-control">
                                         <input class="custom-control-input" type="checkbox" name="paystack"
                                                id="paystack"
@@ -95,11 +95,23 @@
                                 </div>
 
 
+                                 --}}
+
+                                <div class="col-12 col-md-12 mt-2">
+                                    <div class="custom-checkbox custom-control">
+                                        <input class="custom-control-input" type="checkbox" name="wallets"
+                                               id="wallets"
+                                               @if(\App\Models\AppData::paymentMethodEnabled($appData->support_payments,\App\Models\Order::$ORDER_PT_WALLET)) checked @endif >
+                                        <label class="custom-control-label"
+                                               for="wallets">{{__('admin.wallets')}}</label>
+                                    </div>
+                                </div>
+
                                 <div class="col-12 col-md-12 mt-2">
                                     <div class="custom-checkbox custom-control">
                                         <input class="custom-control-input" type="checkbox" name="cash_on_delivery"
                                                id="cash_on_delivery"
-                                               @if(\App\Models\AppData::paymentMethodEnabled($appData->support_payments,\App\Models\Order::$ORDER_PT_COD)) checked @endif >
+                                               @if(\App\Models\AppData::paymentMethodEnabled($appData->support_payments,\App\Models\Order::$ORDER_PT_CACH)) checked @endif >
                                         <label class="custom-control-label"
                                                for="cash_on_delivery">{{__('admin.cash_on_delivery')}}</label>
                                     </div>

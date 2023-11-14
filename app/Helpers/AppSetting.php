@@ -16,7 +16,8 @@ class AppSetting
     //--- set timezone ----------//
 
     //static $timezone = "UTC";
-    static $timezone = "GMT+5:30";
+    static $timezone = "GMT+3:00";
+   /*  static $timezone = "GMT+5:30"; */
 
 
     //-------------------------- Minimum Application Version ----------------------------//

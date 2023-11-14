@@ -27,6 +27,9 @@ return new class extends Migration
             $table->boolean('account_type')->default(0);
             $table->boolean('default')->default(false);
             $table->string('referrer')->nullable();
+            $table->string('referrer_link')->nullable();
+            $table->string('otp')->nullable();
+            $table->timestamp('otp_expiration')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('address');
             $table->string('image_url')->nullable();
             $table->double('rating')->default(0);
-            $table->integer('delivery_range');
+            $table->integer('delivery_range')->default(0);
             $table->integer('total_rating')->default(0);
             $table->integer('default_tax')->nullable();
             $table->boolean('available_for_delivery')->default(true);

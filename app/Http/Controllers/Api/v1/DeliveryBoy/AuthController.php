@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\Api\DeliveryBoy\LoginDeliveryBoyRequest;
 use App\Http\Requests\Api\DeliveryBoy\RegisterDeliveryBoyRequest;
-
+use App\Models\Manager;
 
 class AuthController extends Controller
 {
@@ -25,9 +25,13 @@ class AuthController extends Controller
     use UploadImage;
 
     private $deliveryBoy;
-    public function __construct(DeliveryBoy $deliveryBoy)
+    private $manager;
+    private $user;
+    public function __construct(DeliveryBoy $deliveryBoy,Manager $manager,User $user)
     {
         $this->deliveryBoy = $deliveryBoy;
+        $this->manager = $manager;
+        $this->user = $user;
     }
     public function register(Request $request)
     {
@@ -44,7 +48,8 @@ class AuthController extends Controller
                 'driving_license' => 'required',
                 'avatar_url' => 'required',
                 'shop_id' => ($request->input('category_id') == 1) ? 'required' : 'nullable',
-                'agency_name' => ($request->input('category_id') == 2) ? 'required' : 'nullable'
+                'agency_name' => ($request->input('category_id') == 2) ? 'required' : 'nullable',
+                'referrer_link' => 'string'
             ]);
 
             if ($validator->fails())
@@ -52,6 +57,12 @@ class AuthController extends Controller
                 return $this->errorResponse($validator->errors()->all(), 422);
             }
             DB::beginTransaction ();
+
+            $message = '';
+
+            $uniqueId = uniqid();
+            $referrer = 'driver_id=' . $uniqueId;
+
             $data = [
                 'name' => $request->get('name'),
                 'car_number' => $request->get('car_number'),
@@ -60,8 +71,39 @@ class AuthController extends Controller
                 'category_id' => $request->get('category_id'),
                 'latitude' => $request->get('latitude'),
                 'longitude' => $request->get('longitude'),
-                // 'distance' => $request->get('distance'),
+                'referrer' => $referrer,
             ];
+            if ($request->has('referrer_link')) {
+                $referrerLink = $request->referrer_link;
+                $parts = explode('=', $referrerLink);
+                $variableName = $parts[0];
+                $idValue = $parts[1];
+                if ($variableName === 'shop_id') {
+                    $referrerShop = $this->manager->where('referrer', $request->referrer_link)->first();
+                    $referrerShopId = $referrerShop->id;
+                    $referrerShopName = $referrerShop->shop->name;
+                    $message = trans('message.referral-successfully') . ' ' . $referrerShopId . trans('message.referral-name') . ' ' . $referrerShopName;
+                    $data['referrer_link'] = $referrerLink;
+                }elseif ($variableName === 'user_id') {
+                    $referrerUser = $this->user->where('referrer', $request->referrer_link)->first();
+                    $referrerUserId = $referrerUser->id;
+                    $referrerUserName = $referrerUser->name;
+                    $message = trans('message.referral-successfully') . ' ' . $referrerUserId . trans('message.referral-name') . ' ' . $referrerUserName;
+                    $data['referrer_link'] = $referrerLink;
+                }elseif ($variableName === 'driver_id') {
+                    $referrerDeliveryBoy = $this->deliveryBoy->where('referrer', $request->referrer_link)->first();
+                    $referrerDeliveryBoyId = $referrerDeliveryBoy->id;
+                    $referrerDeliveryBoyName = $referrerDeliveryBoy->name;
+                    $message = trans('message.referral-successfully') . ' ' . $referrerDeliveryBoyId . trans('message.referral-name') . ' ' . $referrerDeliveryBoyName;
+                    $data['referrer_link'] = $referrerLink;
+                }else {
+                    return $this->errorResponse(trans('message.no-referral'), 400);
+                }
+            }
+            if ($request->fcm_token) {
+                $fcm_token = $request->fcm_token;
+                $data['fcm_token'] = $fcm_token;
+            }
             if ($request->input('category_id') != 2) {
                 $request->merge(['agency_name' => null]);
             }
@@ -76,8 +118,15 @@ class AuthController extends Controller
                 $avatar_url  =  $this->upload($request->avatar_url,'deliveryBoys/avatar_url');
                 $data['avatar_url'] = $avatar_url;
             }
+            if ($request->car_license) {
+                $car_license  =  $this->upload($request->car_license,'deliveryBoys/car_license');
+                $data['car_license'] = $car_license;
+            }
             if (isset($request->email)) {
                 $data['email'] = $request->email;
+            }
+            if (isset($request->total_capacity)) {
+                $data['total_capacity'] = $request->total_capacity;
             }
             if (isset($request->shop_id)) {
                 $data['shop_id'] = $request->shop_id;
@@ -89,7 +138,11 @@ class AuthController extends Controller
             if(!$shop_type){
                 $shop_type = '';
             }
-            return $this->returnDataMessage('data', ['deliveryBoy'=>$deliveryBoy,'token'=>$accessToken], trans('message.account-created-Please-wait-admin-approval'));
+            if (!empty($message)) {
+                return $this->returnDataMessage('data', ['deliveryBoy'=>$deliveryBoy,'token'=>$accessToken,'referrer_message' => $message], trans('message.account-created-Please-wait-admin-approval'));
+            } else {
+                return $this->returnDataMessage('data', ['deliveryBoy'=>$deliveryBoy,'token'=>$accessToken], trans('message.account-created-Please-wait-admin-approval'));
+            }
         }catch(\Exception $e){
             Log::info($e->getMessage());
             DB::rollBack();
@@ -120,14 +173,21 @@ class AuthController extends Controller
                 return $this->errorResponse(trans('message.password-correct'),400);
             }
 
-            if($deliveryBoy->is_verified == 0){
-                return $this->errorResponse(trans('message.deliveryBoy-Inactive-by-manager'),403);
+            if($deliveryBoy->is_approval == 0){
+                return $this->errorResponse(trans('admin.wait_verification_driver'),402);
             }
 
-            if($deliveryBoy->is_verified == 1){
-                return $this->errorResponse(trans('message.deliveryBoy-Inactive-by-admin'),403);
+            if($deliveryBoy->is_approval == 1){
+                return $this->errorResponse(trans('message.deliveryBoy-accepted-by-manager'),403);
             }
 
+            if($deliveryBoy->is_approval == -1){
+                return $this->errorResponse(trans('message.deliveryBoy-rejected-by-manager'),403);
+            }
+
+            if($deliveryBoy->is_approval == -2){
+                return $this->errorResponse(trans('message.deliveryBoy-rejected-by-admin'),403);
+            }
 
             $accessToken = $deliveryBoy->createToken('authToken')->accessToken;
             if(isset($request->fcm_token)){
@@ -144,9 +204,8 @@ class AuthController extends Controller
         }catch(\Exception $e){
             Log::info($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
-
     }
 
     public function changeStatus(Request $request)
@@ -161,7 +220,7 @@ class AuthController extends Controller
                 if ($deliveryBoy->is_free) {
                     $deliveryBoy->is_offline = $request->is_offline;
                 } else {
-                    return response(['errors' => ['Please delivered current order then you can goes to offline']], 402);
+                    return $this->errorResponse(['errors' => ['Please delivered current order then you can goes to offline']],402);
                 }
             } else {
                 $deliveryBoy->is_offline = $request->is_offline;
@@ -172,7 +231,7 @@ class AuthController extends Controller
         }catch(\Exception $e){
             Log::info($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
     }
 
@@ -180,15 +239,14 @@ class AuthController extends Controller
     {
         try {
             DB::beginTransaction ();
-            $user = auth()->user();
-            $deliveryBoy = $this->deliveryBoy->where('mobile', $user->mobile)->first();
+            $deliveryBoy = auth()->user();
+            $deliveryBoy = $this->deliveryBoy->where('mobile', $deliveryBoy->mobile)->first();
 
             if (!$deliveryBoy) {
                 return $this->errorResponse(trans('message.deliveryBoy-not-found'),400);
             }
-            $data = [
-                "is_approval" => 0
-            ];
+            $data = [];
+
             if ($request->has('name')) {
                 $data['name'] = $request->name;
             }
@@ -201,8 +259,10 @@ class AuthController extends Controller
             if ($request->has('email')) {
                 $data['email'] = $request->email;
             }
-            if ($request->has('distance')) {
-                $data['distance'] = $request->distance;
+            if ($deliveryBoy->category_id == 2) {
+               if ($request->has('distance')) {
+                    $data['distance'] = $request->distance;
+                }
             }
             if ($request->has('password')) {
                 $password = Hash::make($request->password);
@@ -216,13 +276,23 @@ class AuthController extends Controller
                 $driving_licenses  =  $this->upload($request->driving_licenses,'deliveryBoys/avatar_url');
                 $data['driving_licenses'] = $driving_licenses;
             }
+            if ($request->car_license) {
+                $car_license  =  $this->upload($request->car_license,'deliveryBoys/car_license');
+                $data['car_license'] = $car_license;
+            }
+            if ($request->has('is_offline')) {
+                $data['is_offline'] = $request->is_offline;
+            }
+            if ($request->has('total_capacity')) {
+                $data['total_capacity'] = $request->total_capacity;
+            }
             $deliveryBoy->update($data);
             DB::commit();
             return $this->returnDataMessage('data', ['deliveryBoy'=>$deliveryBoy], trans('message.account-created-Please-wait-admin-approval'));
         }catch(\Exception $e){
             Log::info($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
 
     }
@@ -249,7 +319,7 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
     }
 
@@ -263,20 +333,44 @@ class AuthController extends Controller
 
             if ($validator->fails())
             {
-                return response(['errors'=>$validator->errors()->all()], 422);
+                return $this->errorResponse($validator->errors()->all(), 422);
             }
-            $user =  auth()->user();
+            $deliveryBoy = $this->deliveryBoy->find(auth()->user()->id);
             $data = [
                 "mobile" => $request->get('mobile'),
                 "mobile_verified" => true
             ];
-            $user->update($data);
+            $deliveryBoy->update($data);
             DB::commit();
-            return $this->returnDataMessage('data', ['user'=>$user],trans('message.account-modified'));
+            return $this->returnDataMessage('data', ['deliveryBoy'=>$deliveryBoy],trans('message.account-modified'));
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
+        }
+   }
+
+   public function delete(Request $request)
+   {
+        try {
+            DB::beginTransaction();
+
+            $deliveryBoy = $this->deliveryBoy->find(auth()->user()->id);
+            $orders = $deliveryBoy->orders;
+            foreach ($orders as $order){
+                if($order->status >= 4){
+                    return $this->errorResponse(trans('message.You have active orders, please cancel all orders first'), 200);
+                }
+                $order->delete();
+            }
+            if($deliveryBoy->delete()){
+                DB::commit();
+                return $this->returnMessage(trans('message.Account-Deleted-Success'),204);
+            }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            DB::rollBack();
+            return $this->returnError('400', $e->getMessage());
         }
    }
 }

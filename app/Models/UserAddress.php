@@ -25,7 +25,7 @@ class UserAddress extends Model
     static $OTHER = 2;
 
     protected $fillable = [
-        'longitude', 'latitude', 'address','address2','city', 'pincode','user_id','type','default'
+        'longitude', 'latitude','distance','name', 'street','building_number','city', 'apartment_num','user_id','type','default'
     ];
 
 

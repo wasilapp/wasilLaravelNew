@@ -100,6 +100,26 @@
                                     </span>
                                 @endif
                             </div>
+                            <div class="row">
+                                <div class="form-group col-12 col-md-6">
+                                    <label for="price">{{__('admin.price')}}</label>
+                                    <input required type="number" name="price" id="price" class="form-control @if($errors->has('price')) is-invalid @endif" value="{{$sub_category->price}}">
+                                    @if($errors->has('price'))
+                                        <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('price') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="form-group col-12 col-md-6">
+                                    <label for="quantity">{{__('admin.quantity')}}</label>
+                                    <input required type="number" name="quantity" id="quantity" class="form-control @if($errors->has('quantity')) is-invalid @endif" value="{{$sub_category->quantity}}">
+                                    @if($errors->has('quantity'))
+                                        <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('quantity') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
                              <div class="form-group">
                                 <label for="image">{{__('admin.image')}}</label>
                                 <input type="file" name="image" id="image" data-plugins="dropify"

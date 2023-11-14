@@ -8,7 +8,7 @@
 
     <!-- Start Content-->
     <div class="container-fluid">
-        <x-alert></x-alert>
+        <x-alert></x-alert> 
 
         <div class="row">
             <div class="col-12">
@@ -50,7 +50,8 @@
 
                                 <tr>
                                     <th>{{__('admin.coupon_code')}}</th>
-                                    <th>{{__('admin.description')}}</th>
+                                    {{-- <th>{{__('admin.description')}}</th> --}}
+                                    <th>{{__('admin.type')}}</th>
                                     <th>{{__('admin.status')}}</th>
                                     <th>{{__('admin.offer')}} (%)</th>
                                     <th>{{__('admin.min_order')}}</th>
@@ -64,7 +65,9 @@
                                 @foreach($coupons as $coupon)
                                     <tr>
                                         <td><span class="font-weight-bold">#{{$coupon->code}}</span></td>
-                                        <td>{{$coupon->description}}</td>
+                                        {{-- <td>{{$coupon->type}}</td> --}}
+                                        <td>{{trans('admin.'.$coupon->type)}}</td>
+                                        {{-- <td>{{$coupon->description}}</td> --}}
                                         <td>@if($coupon->is_active)
                                                 <span class="bg-primary mr-1" style="border-radius: 50%;width: 8px;height: 8px;  display: inline-block;"></span>{{__('admin.active')}}
                                             @else

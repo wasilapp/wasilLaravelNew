@@ -3,16 +3,19 @@
 namespace App\Http\Controllers\Api\v1\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Trait\MessageTrait;
 use App\Models\Banner;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
 
 class BannerController extends Controller
 {
+    use MessageTrait;
 
     public function index()
     {
-        return Banner::all();
+        $banners = Banner::where('type','user')->get();
+        return $this->returnData('data', ['banners'=>$banners]);
     }
 
     public function create()

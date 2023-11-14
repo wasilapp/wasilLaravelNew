@@ -50,8 +50,6 @@ class ProductReviewController extends Controller
             $total_rating = $product->total_rating;
             $product->rating = ($product->rating * $total_rating + $request->rating) / ($total_rating + 1);
             $product->total_rating = $total_rating+1;
-
-
             $review->rating = $request->rating;
             $review->review = $request->review;
             $review->product_id = $product->id;
@@ -66,7 +64,6 @@ class ProductReviewController extends Controller
         }
         return response(['message' => ['There is something wrong']], 403);
     }
-
 
     public function show($id)
     {

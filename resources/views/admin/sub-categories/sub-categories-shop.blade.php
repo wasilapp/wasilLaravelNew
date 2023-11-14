@@ -61,7 +61,7 @@
                                         <td>
                                             <div>
                                                 <img src="{{asset($sub_category->image_url)}}"
-                                                     style="object-fit: cover" alt="OOps"
+                                                     style="object-fit: cover" alt="Image"
                                                      height="40px"
                                                      width="40px">
                                             </div>

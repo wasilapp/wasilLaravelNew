@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use Illuminate\Support\Facades\Hash;
+use App\Models\AssignToDelivery;
 
 class DeliveryBoyController extends Controller
 {
@@ -140,7 +141,8 @@ class DeliveryBoyController extends Controller
                     'redirect_url' => route('manager.orders.edit', ['id' => $order_id])
                 ]);
             } else {
-                $delivery_boys = DeliveryBoy::where('shop_id',$shop->id)->where('is_free', '=', true)
+                $delivery_boys = DeliveryBoy::where('shop_id',$shop->id)
+                // ->where('is_free', '=', true)
                     ->where('is_offline', false)->get();
 
                 //return $shop->latitude;
@@ -169,7 +171,7 @@ class DeliveryBoyController extends Controller
     {
 
 
-        $order = Order::find($order_id);
+        $order = Order::findorfail($order_id);
         if ($order) {
             if ($order->delivery_boy_id) {
                 return view('manager.error-page')->with([
@@ -183,10 +185,16 @@ class DeliveryBoyController extends Controller
                 $order->delivery_boy_id = $delivery_boy_id;
                 $deliveryBoy = DeliveryBoy::find($delivery_boy_id);
                 $deliveryBoy->is_free = false;
-                $order->status = 3;
+                $order->status = 1;
                 $order->save();
                 $deliveryBoy->save();
-                $user = User::find($order->user_id);
+                $user = User::findorfail($order->user_id);
+                
+                AssignToDelivery::create([
+                    'delivery_boy_id' => $delivery_boy_id,
+                    'order_id'=>$order->id
+                ]);
+                
                 FCMController::sendMessage("Changed Order Status","Your order ready and wait for delivery boy",$user->fcm_token);
                 FCMController::sendMessage('New Order','Body for notification',$deliveryBoy->fcm_token);
                 return redirect(route('manager.orders.edit', ['id' => $order_id]))->with([

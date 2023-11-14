@@ -170,6 +170,7 @@ return [
 
     'operations' => 'العمليات',
     'add-new-sub_category' => 'اضافة خدمة جديدة',
+    'select-sub_category' => 'اختيار خدمة جديدة',
     'add' => 'إضافة',
     'delete'=>'حذف',
 ];

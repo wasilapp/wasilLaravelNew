@@ -15,21 +15,29 @@
 <link href="{{asset('assets/css/style.css')}} " rel="stylesheet" type="text/css" id="app-default-stylesheet" />
 <link rel="stylesheet" href="{{ asset('assets/css/loading.css') }}">
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-
+<script src="https://rawgit.com/moment/moment/2.2.1/min/moment.min.js"></script>
 @if(trans('admin.dir') !== 'rtl')
     <link href="{{asset('assets/css/style-en.css')}} " rel="stylesheet" type="text/css" id="app-default-stylesheet" />
 @else
     <link href="{{asset('assets/css/style-ar.css')}} " rel="stylesheet" type="text/css" id="app-default-stylesheet" />
 @endif
 <style>
-    .submenu .sub-menu {
+    .submenu .sub-menu,
+    .submenu .sub-menu2,
+    .submenu .sub-menu3,
+    .submenu .sub-menu4,
+    .submenu .sub-menu5 {
         display: none;
         opacity: 0;
         transform: translateY(-10px);
         transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
     }
 
-    .submenu.active .sub-menu {
+    .submenu.active .sub-menu,
+    .submenu.active .sub-menu2,
+    .submenu.active .sub-menu3,
+    .submenu.active .sub-menu4,
+    .submenu.active .sub-menu5 {
         display: block;
         opacity: 1;
         transform: translateY(0);

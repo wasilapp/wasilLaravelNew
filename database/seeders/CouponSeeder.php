@@ -16,6 +16,8 @@ class CouponSeeder extends Seeder
     {
         $coupons = [
             [
+                'category_id' => 1,
+                'is_primary' => 1,
                 'code' => 'SAVE40',
                 'description' => '40% off at any products with product price above $300 and get upto $800 discount',
                 'offer' => 40,
@@ -26,6 +28,8 @@ class CouponSeeder extends Seeder
                 'expired_at' => now()->addDays(2),
             ],
             [
+                'category_id' => 1,
+                'is_primary' => 1,
                 'code' => 'GRUB10',
                 'description' => 'Buy Product with above $50 and get 10% discount upto $200',
                 'offer' => 10,
@@ -34,6 +38,8 @@ class CouponSeeder extends Seeder
                 'expired_at' => now()->addDays(2)
             ],
             [
+                'category_id' => 2,
+                'is_primary' => 1,
                 'code' => 'FLAT25',
                 'description' => 'Flat 25% off on any Order with total amount greater than $100',
                 'offer' => 25,
@@ -42,6 +48,8 @@ class CouponSeeder extends Seeder
                 'expired_at' => now()->addDays(2)
             ],
             [
+                'category_id' => 2,
+                'is_primary' => 1,
                 'code' => 'GET30',
                 'description' => '30% off on any Order above $500 and win discount upto $300',
                 'offer' => 30,
@@ -50,6 +58,8 @@ class CouponSeeder extends Seeder
                 'expired_at' => now()->addDays(2)
             ],
             [
+                'category_id' => 2,
+                'is_primary' => 1,
                 'code' => 'SALE50',
                 'description' => '50% off at any Order above $800. Buy using code SALE50 and get upto $500 discount',
                 'offer' => 50,
@@ -58,6 +68,8 @@ class CouponSeeder extends Seeder
                 'expired_at' => now()->addDays(2)
             ],
             [
+                'category_id' => 2,
+                'is_primary' => 1,
                 'code' => 'GET20',
                 'description' => 'upto 20% off at any Order above $200',
                 'offer' => 20,
@@ -66,6 +78,8 @@ class CouponSeeder extends Seeder
                 'expired_at' => now()->addDays(2)
             ],
             [
+                'category_id' => 1,
+                'is_primary' => 1,
                 'code' => 'SAVE10',
                 'description' => '10% off with toal amount $50 and above on any Prduct',
                 'offer' => 10,
@@ -74,6 +88,8 @@ class CouponSeeder extends Seeder
                 'expired_at' => now()->addDays(2)
             ],
             [
+                'category_id' => 1,
+                'is_primary' => 1,
                 'code' => 'FLAT15',
                 'description' => 'Get Flat 15% off on your Order $50 and above upto $100 discount',
                 'offer' => 15,

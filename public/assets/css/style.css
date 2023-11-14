@@ -1,6 +1,7 @@
 
 #statu{
     display: flex;
+    flex-wrap: wrap;
     list-style-type: none;
     padding: 0;
 }
@@ -16,4 +17,11 @@
 }
 .card-body {
     text-align: start;
+}
+#shops,
+#deliveryBoys{
+    display: none;
+}
+.notification-unread{
+    background-color: #f3f7f9;
 }

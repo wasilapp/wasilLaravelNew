@@ -11,8 +11,8 @@ class CodeController extends Controller
 {
     public function index(){
         $shop = auth()->user()->shop;
-     $codes=Code::with('user')->paginate(10);
-     return view('manager.codes.codes',compact('codes'));
+        $codes=Code::with('user')->paginate(10);
+        return view('manager.codes.codes',compact('codes'));
     }
 
      public function create(){

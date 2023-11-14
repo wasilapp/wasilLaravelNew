@@ -34,12 +34,24 @@ return new class extends Migration
             $table->integer('total_rating')->default(0);
             $table->integer('category_id');
             $table->unsignedBigInteger('shop_id')->nullable();
+            $table->foreign('shop_id')->references('id')->on('shops')->onDelete('set null');
             $table->rememberToken();
             $table->boolean('is_verified')->default(false);
             $table->string('driving_license', 250)->nullable();
+            $table->string('car_license', 250)->nullable();
             $table->tinyInteger('is_approval')->default(0);
             $table->integer('distance')->default(5000);
+            $table->string('otp')->nullable();
+            //$table->integer('full_gas_bottles')->default(50); // Field representing the number of gas bottles or containers that are full
+           // $table->integer('empty_gas_bottles')->default(0); // Field representing the number of gas bottles or containers that are empty
+           // $table->integer('gas_bottles_capacity')->default(0); // Field representing the maximum capacity of gas bottles or containers
+           $table->integer('total_capacity')->default(200);
+           $table->integer('total_quantity')->default(0);
+            $table->integer('available_quantity')->default(0);
+            $table->string('referrer')->nullable();
+            $table->string('referrer_link')->nullable();
             $table->timestamps();
+
         });
     }
 

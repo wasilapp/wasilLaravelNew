@@ -18,6 +18,7 @@ class CreateShopSubCategoryTable extends Migration
             $table->foreignId('shop_id');
             $table->string('price')->nullable();
             $table->string('quantity')->nullable();
+            $table->enum('is_show',['show','hidden'])->default('show');
             $table->primary(['sub_category_id', 'shop_id']);
             $table->timestamps();
         });

@@ -11,6 +11,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class OrderController extends Controller
 {
@@ -60,14 +61,25 @@ class OrderController extends Controller
     public function edit($id)
     {
 
-        $shop = Manager::find(auth()->user()->id)->shop;
+      $shop = Manager::find(auth()->user()->id)->shop;
         if ($shop) {
-            $order =  Order::with('carts','carts.product','carts.product.productImages','address','user','deliveryBoy','orderPayment','carts.productItem','carts.productItem.productItemFeatures')
+            $order =  Order::with('carts','carts.product','orderTime','carts.product.productImages','address','user','deliveryBoy','orderPayment','carts.productItem','carts.productItem.productItemFeatures')
                 ->where('shop_id','=',$shop->id)
                 ->where('id','=',$id)->first();
+            //   dd($order->orderTime);
+            if(isset($order->orderTime)){
+                $order['order_time'] =Carbon::parse($order->orderTime->order_time)->format('H:i:s');
+                $order['offer_date'] =Carbon::parse($order->orderTime->order_date)->format('Y-m-d');
+            }
+            
 
+            $data['datetime'] = $order['offer_date'].' '.$order['order_time'];
+
+            $current = Carbon::now();
+            $dataTime = Carbon::parse($data['datetime']);
             if($order){
                 $order = $order->toArray();
+                $order['orderDatetime'] = $dataTime;
                 return view('manager.orders.edit-order')->with([
                     'order'=>$order
                 ]);
@@ -88,8 +100,6 @@ class OrderController extends Controller
             'redirect_text' => 'Join',
             'redirect_url'=> route('manager.shops.index')
         ]);
-
-
 
     }
 
@@ -113,7 +123,7 @@ class OrderController extends Controller
             if ($order) {
 
 
-                if (Order::isCancelStatus($request->status)) {
+             //   if (Order::isCancelStatus($request->status)) {
                     if (Order::isCancellable($order->status)) {
                         $order->status = $request->status;
 
@@ -131,12 +141,12 @@ class OrderController extends Controller
                             ]);
                         }
 
-                    } else {
+                    } /* else {
                         return redirect()->back()->with([
                             'error' => 'you can\'t cancel this order'
                         ]);
                     }
-                }
+                } */
 
 
                 if(Order::isOrderTypePickup($order->order_type)){
@@ -167,8 +177,13 @@ class OrderController extends Controller
                     }
                 }
 
-
-                $order->status = $request->get('status');
+                if($order->status = -2){
+                    $order->status = 2;
+                    $order->delivery_boy_id = null;
+                }else{
+                    $order->status = $request->get('status');
+                }
+                
 
                 $fcm_token = $order->user->fcm_token;
                 if ($request->get('status') == 2) {

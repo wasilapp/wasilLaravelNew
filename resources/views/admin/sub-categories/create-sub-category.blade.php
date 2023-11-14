@@ -73,25 +73,51 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="price">{{__('admin.price')}}</label>
-                                <textarea required name="price" id="price" class="form-control @if($errors->has('price')) is-invalid @endif">{{old('price')}}</textarea>
-                                @if($errors->has('price'))
-                                    <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $errors->first('price') }}</strong>
-                                    </span>
-                                @endif
+                            <div class="row">
+                                <div class="form-group col-12 col-md-6">
+                                    <label for="price">{{__('admin.price')}}</label>
+                                    <input required type="number" name="price" id="price" class="form-control @if($errors->has('price')) is-invalid @endif">
+                                    @if($errors->has('price'))
+                                        <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('price') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="form-group col-12 col-md-6">
+                                    <label for="quantity">{{__('admin.quantity')}}</label>
+                                    <input required type="number" name="quantity" id="quantity" class="form-control @if($errors->has('quantity')) is-invalid @endif">
+                                    @if($errors->has('quantity'))
+                                        <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('quantity') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="form-group mt-0 col-md-6">
-                                <label for="is_primary">{{__('admin.is_primary')}}</label>
-                                <input type="checkbox" class="@if($errors->has('is_primary')) is-invalid @endif" id="is_primary" name="is_primary" value="1">
-                                @if($errors->has('is_primary'))
-                                    <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $errors->first('is_primary') }}</strong>
-                                    </span>
-                                @endif
+                            <div class="row">
+                                <div class="form-group mt-0 col-12 col-md-6  pb-2 pt-2">
+                                    <label for="is_primary  pb-2 pt-2">{{__('admin.is_primary')}}</label>
+                                    <input type="checkbox" class="@if($errors->has('is_primary')) is-invalid @endif" id="is_primary" name="is_primary" value="1">
+                                    @if($errors->has('is_primary'))
+                                        <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('is_primary') }}</strong>
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="mt-0 col-12 col-md-6 form-group " id="shops">
+                                    <label class="col-9 control-label pb-2 pt-2">{{trans('admin.shop')}}</label>
+                                    <div class="col-sm-12 input-group mb-3">
+                                        <div class="input-group">
+                                            
+                                            <select class="selectpicker shop_id" id="select_shop" data-live-search="true" name="shop_id">
+                                                <option value="">select shop</option>
+                                                @foreach ($shops as $shop)
+                                                    <option value="{{ $shop->id }}">{{ $shop->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-
                             <div class="form-group mb-3">
                                 <label for="category">{{__('manager.category')}} <span class="text-danger">*</span></label>
                                 <select required class="form-control" name="category" id="category">
@@ -125,4 +151,11 @@
     <script src="{{asset('assets/libs/dropzone/dropzone.min.js')}}"></script>
     <script src="{{asset('assets/libs/dropify/dropify.min.js')}}"></script>
     <script src="{{asset('assets/js/pages/form-fileuploads.init.js')}}"></script>
+    <script>
+            /*start check if is_primary */
+            $("#is_primary").change(function(){
+                $("#shops").toggleClass('d-none');
+            });
+            /*end check if is_primary */
+    </script>
 @endsection

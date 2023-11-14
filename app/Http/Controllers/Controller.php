@@ -42,14 +42,12 @@ class Controller extends BaseController
 
 
      public function privacy(){
-         
+
         $privacy =Privacy::first();
           return view('view_privacy', [
                 'privacy' => $privacy
             ]);
     }
-
-
 
 }
 /*

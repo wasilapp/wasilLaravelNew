@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('assign_to_deliveries', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('delivery_boy_id')->index('assign_to_deliveries_delivery_boy_id_foreign');
-            $table->unsignedBigInteger('order_id')->nullable()->index('assign_to_deliveries_order_id_foreign');
+            $table->unsignedBigInteger('order_id')->index('assign_to_deliveries_order_id_foreign');
             $table->timestamps();
         });
     }

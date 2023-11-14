@@ -51,8 +51,9 @@
                                         <th>{{__('admin.name')}}</th>
                                         <th>{{__('admin.manager_name')}}</th>
                                         <th>{{__('admin.rating')}}</th>
-                                        <th>{{__('admin.barcode')}}</th>
+                                        {{-- <th>{{__('admin.barcode')}}</th> --}}
                                         <th>{{__('admin.shop_revenue')}}</th>
+                                        <th>{{__('admin.open')}}</th>
                                         <th style="width: 82px;">{{__('admin.action')}}</th>
                                     </tr>
                                     </thead>
@@ -81,8 +82,17 @@
                                                 @endfor
                                                 <p class="d-inline">({{$shop['total_rating']}})</p>
                                             </td>
-                                            <td>{{$shop->barcode}}</td>
+                                            {{-- <td>{{$shop->barcode}}</td> --}}
                                             <td>{{\App\Helpers\AppSetting::$currencySign}} {{$shop->revenue}}</td>
+                                            <td>
+                                                @if($shop->open == 0)
+                                                    <span class="bg-danger mr-1"
+                                                            style="border-radius: 50%;width: 8px;height: 8px;  display: inline-block;"></span> {{__('admin.closed')}}
+                                                @else
+                                                    <span class="bg-primary mr-1"
+                                                            style="border-radius: 50%;width: 8px;height: 8px;  display: inline-block;"></span> {{__('admin.open')}}
+                                                @endif
+                                            </td>
                                             <td>
                                                 <a href="{{route('admin.shops.show',['id'=>$shop->id])}}"
                                                    style="font-size: 20px"> <i

@@ -14,6 +14,9 @@ class Banner extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'url','type'
+    ];
 
     public static function deleteImage($id): bool
     {

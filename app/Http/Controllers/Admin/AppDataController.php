@@ -40,21 +40,21 @@ class AppDataController extends Controller
 
         $support_payments = "";
         if($request->cash_on_delivery){
-            $support_payments.=(Order::$ORDER_PT_COD);
+            $support_payments.=(Order::$ORDER_PT_CACH);
             $support_payments .= ",";
         }
-        if($request->stripe){
-            $support_payments.=(Order::$ORDER_PT_STRIPE);
+        if($request->wallets){
+            $support_payments.=(Order::$ORDER_PT_WALLET);
             $support_payments.= ",";
         }
-        if($request->razorpay){
-            $support_payments.=(Order::$ORDER_PT_RAZORPAY);
-            $support_payments.= ",";
-        }
-        if($request->paystack){
-            $support_payments.=(Order::$ORDER_PT_PAYSTACK);
-            $support_payments.=",";
-        }
+        // if($request->razorpay){
+        //     $support_payments.=(Order::$ORDER_PT_RAZORPAY);
+        //     $support_payments.= ",";
+        // }
+        // if($request->paystack){
+        //     $support_payments.=(Order::$ORDER_PT_PAYSTACK);
+        //     $support_payments.=",";
+        // }
 
         if(strlen($support_payments)==0){
             return redirect()->back()->with([

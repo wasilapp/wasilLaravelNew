@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Coupon;
+use App\Models\Wallet;
+use App\Models\CouponShop;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\CouponDeliveryBoy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Translatable\HasTranslations;
@@ -38,7 +42,7 @@ class Shop extends Model
     protected $fillable = [
         'name','manager_id','image_url','email','mobile','barcode','latitude',
         'longitude','address','rating','delivery_range','total_rating','category_id',
-        'default_tax', 'available_for_delivery', 'open','distance'
+        'default_tax', 'available_for_delivery', 'open','distance','referrer','referrer_link'
     ];
     public $translatable = ['name'];
 
@@ -51,13 +55,19 @@ class Shop extends Model
         return $this->hasMany(ShopReview::class);
     }
 
-   public function orders(){
+    public function orders(){
         return $this->hasMany(Order::class);
+    }
+    public function deliveryBoys(){
+        return $this->hasMany(DeliveryBoy::class);
     }
     public function transactions(){
         return $this->hasMany(Transaction::class);
     }
-        public static function total_shop_to_admin($id){
+    public function wallets(){
+        return $this->hasMany(Wallet::class);
+    }
+    public static function total_shop_to_admin($id){
         $shop=Shop::find($id);
         return $shop->transactions->sum('total');
     }
@@ -113,13 +123,18 @@ class Shop extends Model
         return $this->belongsToMany(SubCategory::class)
         ->withPivot('price')
         ->withPivot('quantity')
+        ->withPivot('is_show')
         ->using(ShopSubcategory::class);
     }
 
     public function ShopSubcategory(){
         return $this->belongsToMany(ShopSubcategory::class);
     }
-
+    public function coupons()
+    {
+        return $this->belongsToMany(Coupon::class)
+        ->using(CouponShop::class);
+    }
     public function calculateDistance($userLatitude, $userLongitude) {
        $earthRadius = 6371; // نصف قطر الأرض بالكيلومتر
         $latDiff = deg2rad($userLatitude - $this->latitude);

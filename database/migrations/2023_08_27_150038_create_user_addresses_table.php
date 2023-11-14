@@ -17,11 +17,13 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->decimal('longitude', 10, 7);
             $table->decimal('latitude', 10, 7);
-            $table->string('address');
-            $table->string('address2')->nullable();
+            $table->integer('distance')->default(50);
+            $table->string('name');
+            $table->string('street'); //address
+            $table->string('building_number')->nullable(); // address2
             $table->string('city');
             $table->boolean('default')->default(false);
-            $table->integer('pincode');
+            $table->integer('apartment_num'); //pincode
             $table->boolean('active')->default(true);
             $table->integer('type')->default(2);
             $table->unsignedBigInteger('user_id');

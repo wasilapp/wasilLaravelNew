@@ -8,34 +8,32 @@ use App\Models\Manager;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Statu;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
     public function index(Request $request)
     {
-       
         if($request->search != 'all' && $request->search != null){
             $id = $request->search;
-            /* $orders =  Order::with('shop', 'orderPayment')->orderBy('updated_at','DESC')->whereHas('deliveryBoy', function($q) use ($id) {
-                   $q->whereHas('category', function($q)use ($id){
+            $orders =  Order::with('category','user','shop','statu', 'orderPayment','deliveryBoy')->orderBy('updated_at','DESC')
+                //     ->whereHas('shop', function($q) use ($id) {
+                //    $q
+                   ->whereHas('category', function($q)use ($id){
                        $q->where('id', $id);
-                    });
-                })->paginate(10); */
-            $orders =  Order::with('shop', 'orderPayment')->orderBy('updated_at','DESC')->whereHas('shop', function($q) use ($id) {
-                   $q->whereHas('category', function($q)use ($id){
-                       $q->where('id', $id);
-                    });
-                })->paginate(10);
-           // dd($orders);
+                    })->paginate(10);
         } else{
-           $orders =  Order::with('shop', 'orderPayment')->orderBy('updated_at','DESC')->paginate(10);
+           $orders =  Order::with('category','user','shop','statu', 'orderPayment','deliveryBoy')->orderBy('updated_at','DESC')->paginate(10);
+        //    dd($orders);
         }
         $cats = Category::all();
-        // dd($orders);
+        $statu = Statu::all();
+        // dd($orders,$cats);
         return view('admin.orders.orders')->with([
             'orders'=>$orders,
-            'cats' =>$cats
+            'cats' =>$cats,
+            'statu' =>$statu,
         ]);
 
     }
@@ -49,13 +47,15 @@ class OrderController extends Controller
             })->paginate(10); */
 
 
-        $orders =  Order::with('shop', 'orderPayment')->where('status',$id)->orderBy('updated_at','DESC')->paginate(10);
+        $orders =  Order::with('category','shop','statu', 'orderPayment','deliveryBoy')->where('status',$id)->orderBy('updated_at','DESC')->paginate(10);
 
 
         $cats = Category::all();
+        $statu = Statu::all();
         // dd($orders);
         return view('admin.orders.orders')->with([
             'orders'=>$orders,
+            'statu' =>$statu,
             'cats' =>$cats
         ]);
 

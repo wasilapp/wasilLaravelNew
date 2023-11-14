@@ -63,7 +63,7 @@
                                             <div class="col-12 col-md-6">
                                                 <img class="card-img-top" style="object-fit: cover" height="200"
                                                      src="{{asset('/storage/'.$shop_request['shop']['image_url'])}}"
-                                                     alt="Card image cap">
+                                                     alt="Image">
                                             </div>
                                             <div class="col-12 col-md-6">
                                                 <h4 class="card-title mt-2">
@@ -94,7 +94,7 @@
                                                 <img class="card-img-top img-fluid rounded-circle img-thumbnail"
                                                      style="object-fit: cover" height="200"
                                                      src="{{asset('/storage/'.$shop_request['manager']->avatar_url)}}"
-                                                     alt="Card image cap">
+                                                     alt="Image">
                                             </div>
                                             <div class="col-8 col-md-8 mt-3">
                                                 <div class="row">

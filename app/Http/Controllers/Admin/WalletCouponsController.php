@@ -54,7 +54,7 @@ class WalletCouponsController extends Controller
             'price'=> 'required',
             ]);
         DB::beginTransaction();
-        try{
+        try{ 
             WalletCoupons::create([
                 'user_id' => $request->user_number,
                 'price' => $request->price,

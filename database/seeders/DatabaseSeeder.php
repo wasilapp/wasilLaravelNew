@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Database\Seeders\StatuSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,9 +22,10 @@ class DatabaseSeeder extends Seeder
             SubCategorySeeder::class,
             ShopSeeder::class,
             CouponSeeder::class,
-            ShopCouponSeeder::class,
+           // ShopCouponSeeder::class,
             DeliveryBoySeeder::class,
             UserAddressSeeder::class,
+            StatuSeeder::class
         ]);
     }
 }

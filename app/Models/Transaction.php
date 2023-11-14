@@ -27,6 +27,10 @@ class Transaction extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'shop_id','delivery_boy_id','total','from_date','to_date','time','status'
+    ];
+
     public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Order::class);

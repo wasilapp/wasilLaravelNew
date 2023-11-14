@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\v1\Manager;
 
 use App\Models\Shop;
+use App\Models\Admin;
 use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\UserAddress;
@@ -13,12 +14,16 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Api\Manager\SubCategoryRequest;
+use App\Notifications\SubCategoryAddedByShopNotification;
+use App\Notifications\Fairbase\SubCategoryAddedByShopNotificationFcm;
 
 class CategoryController extends Controller
 {
     use MessageTrait;
     use UploadImage;
+    use SubCategoryAddedByShopNotificationFcm;
 
     private $category;
     private $subCategory;
@@ -30,6 +35,40 @@ class CategoryController extends Controller
         $this->shop = $shop;
     }
     public function index(Request $request)
+    {
+
+        $allCategories = $this->category::with('subCategories')->get();
+        $shop = auth()->user()->shop;
+        $subCategoriesShop = $shop->subCategory;
+        $result = [];
+        foreach ($allCategories as $category) {
+            //return  $category;
+            $categoryData = $category->toArray();
+           // return  $categoryData;
+            $categoryData['sub_shop_categories'] = $subCategoriesShop->where('category_id', $category->id)->all();
+
+            $subAdminCategories = $category->subAdminCategories;
+            $allSubAdminCategoriesResult = [];
+            foreach ($subAdminCategories as $cat) {
+                $subAdminCategoriesResult = $cat->toArray();
+                if($shop->subCategory()->where('sub_category_id', $cat->id)->exists()){
+                    $subAdminCategoriesResult['status'] = 'added';
+                } else {
+                    $subAdminCategoriesResult['status'] = 'notAdded';
+                }
+                array_push($allSubAdminCategoriesResult,$subAdminCategoriesResult );
+            }
+
+            $categoryData['subAdminCategories']=$allSubAdminCategoriesResult;
+            $result[] = $categoryData;
+        }
+        if ($result) {
+            return $this->returnData('data', ['allCategories'=>$result]);
+        } else {
+            return $this->errorResponse(trans('message.any-Categories-yet'), 200);
+        }
+    }
+    /* public function index2(Request $request)
     {
 
         $allCategories = $this->category::with('subCategories','subAdminCategories')->get();
@@ -46,7 +85,7 @@ class CategoryController extends Controller
         } else {
             return $this->errorResponse(trans('message.any-Categories-yet'), 200);
         }
-    }
+    } */
 
     public function mainCategories(Request $request)
     {
@@ -63,13 +102,42 @@ class CategoryController extends Controller
         $shop = auth()->user()->shop;
         $category_id =  $shop->category->id;
         $category =  $shop->category->title;
-        $subCategories = $shop->subCategory;
 
+        $subCategoriesPending = $shop->subCategory()
+            ->where('is_approval', 0)
+            ->get();
+        $subCategoriesAccepted = $shop->subCategory()
+            ->where('is_approval', 1)
+            ->get();
+        $subCategories = $shop->subCategory()
+            ->where('is_approval', '!=' , -1)
+            ->get();
         if ($subCategories) {
-            return $this->returnData('data', ['id' => $category_id,'categoryName' => $category,'subCategories'=>$subCategories]);
+            return $this->returnData('data',
+             ['id' => $category_id,
+             'categoryName' => $category,
+             'subCategoriesPending'=>$subCategoriesPending,
+             'subCategoriesAccepted'=>$subCategoriesAccepted,
+             'subCategories'=>$subCategories,
+            ]);
         } else {
             return $this->errorResponse(trans('message.any-subCategories-yet'), 200);
         }
+    }
+
+    public function mySubCategoriesShow($id){
+        try {
+            DB::beginTransaction ();
+            $shop = auth()->user()->shop;
+            $subCategory = $shop->subCategory()->find($id);
+            DB::commit();
+            return $this->returnData('data', ['subCategory'=>$subCategory]);
+        }catch(\Exception $e){
+            Log::error($e->getMessage());
+            DB::rollBack();
+            return $this->returnError('400', $e->getMessage());
+        }
+
     }
 
     public function store(Request $request)
@@ -104,19 +172,24 @@ class CategoryController extends Controller
                     'en' => $request->input('description')['en'],
                     'ar' => $request->input('description')['ar']
                 ],
-                'is_primary'=>0
+                'is_primary'=>0,
+                'shop_id'=> $shop->id
             ];
             $subCategory = $this->subCategory->create($data);
             if ($subCategory) {
                 $sub_category_id = $subCategory->id;
                 $shop->subCategory()->syncWithoutDetaching([ $sub_category_id => ['price' => $request->input ('price'),'quantity' => $request->input ('quantity')]]);
             }
+            $admins = Admin::all();
+            Notification::send($admins,new SubCategoryAddedByShopNotification($subCategory));
+            $this->sendSubCategoryAddedByShopNotificationFcm($subCategory);
+
             DB::commit();
             return $this->returnDataMessage('data', ['subCategory'=>$subCategory],trans('message.item-created-Please-wait-admin-approval'));
         }catch(\Exception $e){
             Log::error($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
 
     }
@@ -160,18 +233,32 @@ class CategoryController extends Controller
         }catch(\Exception $e){
             Log::error($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
     }
 
     public function selectSubCategories(Request $request)
     {
+        //return $request->all();
         try {
+
             DB::beginTransaction ();
             $shop = auth()->user()->shop;
-            $subCategories = json_decode($request->subCategories, true);
+            //$subCategories = json_decode($request->subCategories, true);
+            $subCategories = $request->all();
             if (!empty($subCategories)) {
-                $shop->subCategory()->syncWithoutDetaching($subCategories);
+                foreach ($subCategories as $sub){
+                    //return $sub['sub_category_id'];
+                   // $shop->subCategory()->syncWithoutDetaching($sub);
+
+                    $shop->subCategory()->syncWithoutDetaching([
+                        $sub['sub_category_id'] => [
+                            'price' => $sub['price'],
+                            'quantity' => $sub['quantity']
+                            ]
+                    ]);
+
+                }
             }
             $getSubCategories = $shop->subCategory;
             DB::commit();
@@ -179,7 +266,7 @@ class CategoryController extends Controller
         }catch(\Exception $e){
             Log::error($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
     }
     /* public function destroy($id){
@@ -203,26 +290,75 @@ class CategoryController extends Controller
         return response(['errors' => [$e->getMessage()]], 402);
     } */
     public function remove($id){
-    try {
-        DB::beginTransaction ();
-        $user = auth()->user();
-        $shop = auth()->user()->shop;
-        $subCategory = $this->subCategory->find($id);
-        if (!$subCategory) {
-            return $this->errorResponse(trans('message.item-not-found'),400);
-        }
-        if (!$shop->subCategory()->where ('id', $subCategory->id)->exists()) {
-            return $this->errorResponse(trans('message.item-not-related'),400);
-        }
+        try {
+            DB::beginTransaction ();
+            $user = auth()->user();
+            $shop = auth()->user()->shop;
+            $subCategory = $this->subCategory->find($id);
+            if (!$subCategory) {
+                return $this->errorResponse(trans('message.item-not-found'),400);
+            }
+            if (!$shop->subCategory()->where ('id', $subCategory->id)->exists()) {
+                return $this->errorResponse(trans('message.item-not-related'),400);
+            }
 
-        $shop->subCategory()->detach($subCategory);
+            $shop->subCategory()->detach($subCategory);
 
-        DB::commit();
-        return $this->returnMessage(trans('message.item-removed-successfully'),204);
-    }catch(\Exception $e){
-        Log::info($e->getMessage());
-        DB::rollBack();
-        return response(['errors' => [$e->getMessage()]], 402);
+            if ($subCategory->shop_id === $shop->id){
+              
+                $subCategory->update([
+                    'active' => 0
+                ]);
+            }
+            DB::commit();
+            return $this->returnMessage(trans('message.item-removed-successfully'),204);
+        }catch(\Exception $e){
+            Log::info($e->getMessage());
+            DB::rollBack();
+            return $this->returnError('400', $e->getMessage());
+        }
     }
-}
+    public function showOrHide($id, $statu){
+        try {
+            DB::beginTransaction ();
+            $user = auth()->user();
+            $shop = auth()->user()->shop;
+            $subCategory = $this->subCategory->find($id);
+            if (!$subCategory) {
+                return $this->errorResponse(trans('message.item-not-found'),400);
+            }
+            if (!$shop->subCategory()->where ('id', $subCategory->id)->exists()) {
+                return $this->errorResponse(trans('message.item-not-related'),400);
+            }
+
+            $shop->subCategory()->updateExistingPivot($subCategory->id, [
+                'is_show' => $statu
+            ]);
+            
+            
+            if($statu === "show"){
+                if($subCategory->shop_id === $shop->id ){
+                    $subCategory->update([
+                        'active' => 1
+                    ]);
+                } 
+                DB::commit();
+                return $this->returnMessage(trans('message.The item was displayed successfully'),204);
+            } 
+            if($statu === "hidden"){
+                if($subCategory->shop_id === $shop->id ){
+                    $subCategory->update([
+                        'active' => 0
+                    ]);
+                } 
+                DB::commit();
+                return $this->returnMessage(trans('message.The item was successfully hidden'),204);
+            } 
+            
+        }catch(\Exception $e){
+            Log::info($e->getMessage());
+            DB::rollBack();
+            return $this->returnError('400', $e->getMessage());
+        }
+    }
 }

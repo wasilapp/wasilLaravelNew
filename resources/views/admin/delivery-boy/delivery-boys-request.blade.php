@@ -106,21 +106,21 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <a href="{{route('admin.delivery-boy.reviews.show',['id'=>$delivery_boy->id])}}"
+                                                    {{-- <a href="{{route('admin.delivery-boy.reviews.show',['id'=>$delivery_boy->id])}}"
                                                        style="font-size: 20px"> <i
                                                             class="mdi mdi-star "></i>
-                                                    </a>
-                                                    <a href="{{route('admin.delivery-boy.show',['id'=>$delivery_boy->id])}}"
+                                                    </a> --}}
+                                                    <a href="{{route('admin.delivery-boy-request.show',['id'=>$delivery_boy->id])}}"
                                                        style="font-size: 20px"> <i
                                                             class="mdi mdi-eye "></i></a>
-                                                    <form method="POST" action="{{route('admin.delivery-boy.destroy', [$delivery_boy->id])}}" class="d-inline" onsubmit="return confirm('Delete this user permanently?')">
+                                                    {{-- <form method="POST" action="{{route('admin.delivery-boy.destroy', [$delivery_boy->id])}}" class="d-inline" onsubmit="return confirm('Delete this user permanently?')">
                                                         @csrf
                                                         <input type="hidden" name="_method" value="DELETE">
 
                                                         <button type="submit" class="btn btn-link p-0">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="red" d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12Z"/></svg>
                                                         </button>
-                                                    </form>
+                                                    </form> --}}
                                                 </td>
                                             </tr>
                                         @endforeach

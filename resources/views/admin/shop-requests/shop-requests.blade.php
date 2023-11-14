@@ -36,7 +36,7 @@
                                 <th>{{__('admin.image')}}</th>
                                 <th>{{__('admin.name')}}</th>
                                 <th>{{__('admin.manager_name')}}</th>
-                                <th>{{__('admin.barcode')}}</th>
+                                {{-- <th>{{__('admin.barcode')}}</th> --}}
                                 <th style="width: 82px;">{{__('admin.action')}}</th>
                             </tr>
                             </thead>
@@ -54,12 +54,12 @@
                                         <td>
                                             {{$shop['manager']->name}}
                                         </td>
-                                        <td>{{$shop->barcode}}</td>
+                                        {{-- <td>{{$shop->barcode}}</td> --}}
                                         <td class="d-flex gap-2">
                                             <a href="{{route('admin.shop_requests.show',['id'=>$shop->id])}}"
                                                 style="font-size: 20px"> <i
                                                      class="mdi mdi-eye"></i></a>
-                                            
+
                                         </td>
                                     </tr>
                                 @endforeach

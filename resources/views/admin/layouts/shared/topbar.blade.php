@@ -9,7 +9,7 @@
                     <i class="fe-maximize noti-icon"></i>
                 </a>
             </li>
-
+            <x-dashboard.notifications-menu count="7" />
             <li class="dropdown d-none d-lg-inline-block topbar-dropdown">
         @if(str_contains(request()->url(),'/ar'))
                  <?php
@@ -103,7 +103,7 @@
 
         <!-- LOGO -->
         <div class="logo-box">
-            <a href="{{route('manager.dashboard')}}" class="logo text-center logo-light">
+            <a href="{{route('admin.dashboard')}}" class="logo text-center logo-light">
 
                 <span class="logo-sm">
                     <img src="{{asset('assets/images/logo-light-sm.png')}}" alt="" height="24">
@@ -116,7 +116,7 @@
                         " src="{{asset('assets/images/logo-light.png')}}" alt="" height="24">
                 </span>
             </a>
-            <a href="{{route('manager.dashboard')}}" class="logo text-center logo-dark">
+            <a href="{{route('admin.dashboard')}}" class="logo text-center logo-dark">
 
                 <span class="logo-sm">
                     <img src="{{asset('assets/images/logo-dark-sm.png')}}" alt="" height="24">

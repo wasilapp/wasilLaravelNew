@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Manager\ProductItemController;
 use App\Http\Trait\UploadImage;
+use App\Models\Banner;
 use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Product;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 use function PHPUnit\Framework\returnArgument;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -109,4 +111,55 @@ class UserController extends Controller
 
     }
 
+    public function getBanners(){
+        $banners = Banner::where('type','user')->get();
+        // dd($banners);
+        return view('admin.users.banners.banners')->with([
+            'banners' => $banners,
+        ]);
+    }
+    public function createBanners(){
+        return view('admin.users.banners.add-banner-images');
+    }
+    public function storeBanners(Request $request){
+        try {
+            $validator = Validator::make($request->all(),[
+                'url' => 'required',
+                'type' => 'required',
+            ]);
+            if ($validator->fails())
+            {
+                return redirect()->route('admin.users-banners.create')->with(['error' => $validator->errors()->all()]);
+            }
+            DB::beginTransaction ();
+            if ($request->has('url')) {
+               $url  =  $this->upload($request->url,'url_banner');
+            }
+
+            $bannerData = [
+                'url' => $url,
+                'type' => $request->input ('type'),
+            ];
+            Banner::create($bannerData);
+            DB::commit();
+            return redirect()->route('admin.users-banners.index')->with(['message' => 'banner has been created']);
+        } catch(\Exception $e){
+            Log::info($e->getMessage());
+            DB::rollBack();
+            return redirect()->route('admin.users-banners.create')->with(['error' => 'Something wrong']);
+        }
+    }
+
+    public function destroyBanners($id){
+        try {
+            $banner =  Banner::findOrFail($id);
+            DB::beginTransaction();
+            $banner->delete();
+            DB::commit();
+            return redirect()->route('admin.users-banners.index')->with('success','Banner deleted successfully');
+        }catch(\Exception $e){
+            DB::rollBack();
+            return redirect()->route('admin.users-banners.index')->with(['error' => 'Banner not deleted']);
+        }
+    }
 }

@@ -10,8 +10,7 @@ use Illuminate\Http\Request;
 class UserCouponController extends Controller
 {
 
-
-
+    
     public function index(){
 
     }
@@ -33,6 +32,7 @@ class UserCouponController extends Controller
         $coupon = Coupon::find($couponId);
         if($coupon){
             $isCouponUsed = UserCoupon::where('user_id','=',$userId)->where('coupon_id','=',$couponId)->exists();
+            
             if($coupon->for_only_one_time && $isCouponUsed){
                 return [
                     "success"=>false,

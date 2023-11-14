@@ -29,7 +29,7 @@ class SubCategory extends Model
 
 
     protected $fillable = [
-        'title','description', 'price', 'category_id','active','image_url','is_primary','is_approval'
+        'title','description', 'price', 'category_id','active','image_url','is_primary','is_approval','quantity','shop_id'
     ];
 
     public $translatable = ['title','description'];
@@ -70,8 +70,25 @@ class SubCategory extends Model
         return true;
     }
 
-    public function shops()
+    /* public function shops()
     {
         return $this->belongsToMany(Shop::class, 'shop_sub_category', 'sub_category_id', 'shop_id');
+    } */
+
+    public function shops()
+    {
+        return $this->belongsToMany(Shop::class)
+        ->withPivot('price')
+        ->withPivot('quantity')
+        ->using(ShopSubcategory::class);
     }
+    public function deliveryBoys()
+    {
+        return $this->belongsToMany(DeliveryBoy::class)
+        ->withPivot('price')
+        ->withPivot('total_quantity')
+        ->withPivot('available_quantity')
+        ->using(DeliveryBoySubCategory::class);
+    }
+
 }

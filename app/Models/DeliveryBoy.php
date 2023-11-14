@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
-use App\Notifications\AdminResetPasswordNotification;
-use App\Notifications\DeliveryBoyResetPasswordNotification;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use App\Models\Coupon;
+use App\Models\CouponDeliveryBoy;
 use Laravel\Passport\HasApiTokens;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 use Spatie\Translatable\HasTranslations;
+use App\Notifications\AdminResetPasswordNotification;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Notifications\DeliveryBoyResetPasswordNotification;
 
 /**
  * @method static where(string $string, string $string1, $string2)
@@ -32,9 +34,17 @@ class DeliveryBoy extends Authenticatable
         'name','email','email_verified_at','password','fcm_token','latitude',
         'longitude','is_free','is_offline','is_approval','avatar_url','mobile',
         'mobile_verified','rating','total_rating', 'category_id', 'shop_id',
-        'car_number','driving_license','is_verified','distance','agency_name'
+        'car_number','driving_license','car_license','is_verified','distance','agency_name','referrer','referrer_link',
+        'total_capacity','total_quantity','available_quantity'
     ];
     public $translatable = ['name','agency_name'];
+
+    public function coupons()
+    {
+        return $this->belongsToMany(Coupon::class)
+        ->using(CouponDeliveryBoy::class);
+    }
+
 
     public function orders()
     {
@@ -50,18 +60,29 @@ class DeliveryBoy extends Authenticatable
     {
         return $this->belongsTo(Shop::class);
     }
-        public static function orders_total($id){
-         $shop=DeliveryBoy::find($id);
+    
+    public function subCategory()
+    {
+        return $this->belongsToMany(SubCategory::class)
+        ->withPivot('price')
+        ->withPivot('total_quantity')
+        ->withPivot('available_quantity')
+        ->using(DeliveryBoySubCategory::class)->as('details');
+    }
+
+    public static function orders_total($id){
+        $shop=DeliveryBoy::find($id);
         return $shop->orders->where('shop_id',Null)->sum('total');
     }
-        public function transactions(){
+
+    public function transactions(){
         return $this->hasMany(Transaction::class);
     }
-        public static function total_shop_to_admin($id){
+
+    public static function total_shop_to_admin($id){
         $shop=DeliveryBoy::find($id);
         return $shop->transactions->sum('total');
     }
-
 
     public function category()
     {
@@ -72,10 +93,12 @@ class DeliveryBoy extends Authenticatable
     {
         return $this->belongsTo(Shop::class);
     }
+
     public function ordersAssignToDelivery()
     {
         return $this->hasMany(AssignToDelivery::class);
     }
+
 
     public function calculateDistance($userLatitude, $userLongitude) {
        $earthRadius = 6371; // نصف قطر الأرض بالكيلومتر
@@ -87,6 +110,23 @@ class DeliveryBoy extends Authenticatable
 
         $this->distance = $distance;
         $this->save();
+
+        return $distance;
+    }
+
+    public function haversine($lat1, $lon1, $lat2, $lon2) {
+        $earthRadius = 6371; // km
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat/2) * sin($dLat/2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($dLon/2) * sin($dLon/2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+
+        $distance = $earthRadius * $c;
 
         return $distance;
     }

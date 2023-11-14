@@ -1,0 +1,48 @@
+/*Notifications Page*/
+#notifications {
+    padding: 1rem 2rem;
+}
+.notifications-container{
+    background-color: #F3F3F3;
+    border-radius: 19px;
+    padding: 1rem;
+    -webkit-border-radius: 19px;
+    -moz-border-radius: 19px;
+    -ms-border-radius: 19px;
+    -o-border-radius: 19px;
+    overflow: hidden;
+}
+.notifications-container .head a{
+    color: #FF9900;
+}
+.notifications-container .notifications{
+    /* overflow: scroll;
+    height: 100vh; */
+    color: #707070e0;
+}
+
+.notifications-container .notification {
+    border-bottom: 1px solid #7070704d;
+    position: relative;
+    padding: 1rem 30px 1rem 1rem;
+}
+.notifications-container a:last-child .notification{
+    border-bottom:none !important;
+}
+.notifications-container .notification::before {
+    content: '';
+    position: absolute;
+    right: 10px;
+    width: 10px;
+    height: 10px;
+    background-color: var(--main-color);
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+.notifications-container .notification .icon-circle{
+    width: 60px;
+    height: 60px;
+}
+
+

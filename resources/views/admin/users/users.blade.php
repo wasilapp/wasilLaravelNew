@@ -45,6 +45,7 @@
                                     <th>{{__('admin.name')}}</th>
                                     <th>{{__('admin.email')}}</th>
                                     <th>{{__('admin.mobile')}}</th>
+                                    <th>address</th>
                                     <th>{{__('admin.verified')}}</th>
                                     <th>{{__('admin.status')}}</th>
 
@@ -57,12 +58,12 @@
                                         <td>
                                             @if($user->avatar_url)
                                                 <img src="{{asset($user->avatar_url)}}"
-                                                     style="object-fit: cover" alt="OOps"
+                                                     style="object-fit: cover" alt="Image"
                                                      height="64px"
                                                      width="64px">
                                             @else
                                                 <img src="{{\App\Models\Product::getPlaceholderImage()}}"
-                                                     style="object-fit: cover" alt="OOps"
+                                                     style="object-fit: cover" alt="Image"
                                                      height="64px"
                                                      width="64px">
                                             @endif
@@ -70,6 +71,13 @@
                                         <td>{{$user->name}}</td>
                                         <td>{{$user->email}}</td>
                                         <td>{{$user->mobile}}</td>
+                                        <td>
+                                            @foreach ($user->addresses as $address)
+                                                @if ($address->default == 1)
+                                                    {{ $address->city }}
+                                                @endif
+                                            @endforeach
+                                        </td>
                                         <td>
                                             @if($user->mobile_verified)
                                                 <span class="text-success">{{__('admin.verified')}}</span>

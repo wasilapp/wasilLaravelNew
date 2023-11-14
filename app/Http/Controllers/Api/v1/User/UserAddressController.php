@@ -70,9 +70,9 @@ class UserAddressController extends Controller
             $validator = Validator::make($request->all(),[
                 'longitude' => 'required',
                 'latitude' => 'required',
-                'address' => 'required',
+                'street' => 'required',
                 'city' => 'required',
-                'pincode' => 'required',
+                'apartment_num' => 'required',
                 'type' => 'required',
             ]);
 
@@ -85,10 +85,11 @@ class UserAddressController extends Controller
             $data = [
                 'longitude' => $request->longitude,
                 'latitude' => $request->latitude,
-                'address' => $request->address,
-                'address2' => $request->address2,
+                'name' => $request->name,
+                'street' => $request->street,
+                'building_number' => $request->building_number,
                 'city' => $request->city,
-                'pincode' => $request->pincode,
+                'apartment_num' => $request->apartment_num,
                 'user_id' => $user_id,
                 'type' => $request->type,
             ];
@@ -114,7 +115,7 @@ class UserAddressController extends Controller
         }catch(\Exception $e){
             Log::error($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
 
     }
@@ -129,45 +130,48 @@ class UserAddressController extends Controller
 
     }
 
-    public function update(Request $request)
+    public function update(Request $request,$id)
     {
         try {
-            $validator = Validator::make($request->all(),[
-                'longitude' => 'required',
-                'latitude' => 'required',
-                'address' => 'required',
-                'city' => 'required',
-                'pincode' => 'required',
-                'type' => 'required',
-            ]);
-
-            if ($validator->fails())
-            {
-                return $this->errorResponse($validator->errors()->all(), 422);
-            }
             DB::beginTransaction ();
             $user_id = auth()->user()->id;
-
-            $data = [
-                'longitude' => $request->longitude,
-                'latitude' => $request->latitude,
-                'address' => $request->address,
-                'address2' => $request->address2,
-                'city' => $request->city,
-                'pincode' => $request->pincode,
-                'user_id' => $user_id,
-                'type' => $request->type,
-            ];
-            if(isset($request->default)){
-                if($request->default){
-                    UserAddress::setAllDefaultOff($user_id);
-                }
-                $data['default'] = $request->default;
-            }
-
-            $address = $this->address->where('id' ,$request->id)->first();
+            $address = $this->address->where('id' ,$id)->first();
 
             if($address){
+                $data = [
+                    'user_id' => $user_id,
+                ];
+                if ($request->has('longitude')) {
+                    $data['longitude'] = $request->longitude;
+                }
+                if ($request->has('latitude')) {
+                    $data['latitude'] = $request->latitude;
+                }
+                if ($request->has('name')) {
+                    $data['name'] = $request->name;
+                }
+                if ($request->has('street')) {
+                    $data['street'] = $request->street;
+                }
+                if ($request->has('building_number')) {
+                    $data['building_number'] = $request->building_number;
+                }
+                if ($request->has('city')) {
+                    $data['city'] = $request->city;
+                }
+                if ($request->has('apartment_num')) {
+                    $data['apartment_num'] = $request->apartment_num;
+                }
+                if ($request->has('type')) {
+                    $data['type'] = $request->type;
+                }
+                if(isset($request->default)){
+                    if($request->default){
+                        UserAddress::setAllDefaultOff($user_id);
+                    }
+                    $data['default'] = $request->default;
+                }
+                // return $data;
                 $address->update($data);
                 DB::commit();
                 return $this->returnDataMessage('data', ['Address'=>$address],trans('message.address-updated'));
@@ -179,7 +183,7 @@ class UserAddressController extends Controller
         }catch(\Exception $e){
             Log::error($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
 
     }
@@ -200,7 +204,7 @@ class UserAddressController extends Controller
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
 
     }

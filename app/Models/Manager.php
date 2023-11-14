@@ -33,7 +33,7 @@ class Manager extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','avatar_url','mobile','mobile_verified','license','is_approval','address'
+        'name', 'email', 'password','avatar_url','mobile','mobile_verified','license','is_approval','address','referrer','referrer_link','otp','otp_expiration','fcm_token'
     ];
     public $translatable = ['name'];
     /**

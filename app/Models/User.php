@@ -38,7 +38,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'email','default','email_verified_at',
         'mobile','mobile_verified','avatar_url','fcm_token',
-        'password','blocked','account_type','referrer'
+        'password','blocked','account_type','referrer','referrer_link'
+        ,'otp','otp_expiration'
     ];
 
     protected $hidden = [
@@ -63,9 +64,13 @@ class User extends Authenticatable
         return $this->hasMany(UserAddress::class);
     }
 
-    public function orders(): HasMany
+    public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+    public function walletCoupons()
+    {
+        return $this->hasMany(WalletCoupons::class);
     }
 
 

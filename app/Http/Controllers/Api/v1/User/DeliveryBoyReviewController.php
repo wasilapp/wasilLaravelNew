@@ -2,24 +2,35 @@
 
 namespace App\Http\Controllers\Api\v1\User;
 
+use App\Models\User;
+use App\Models\Order;
+use App\Models\Category;
+use App\Rules\RatingRule;
+use App\Models\DeliveryBoy;
+use App\Models\SubCategory;
+use Illuminate\Http\Request;
+use App\Http\Trait\MessageTrait;
+use App\Models\DeliveryBoyReview;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\FCMController;
-use App\Http\Trait\MessageTrait;
-use App\Models\DeliveryBoy;
-use App\Models\DeliveryBoyReview;
-use App\Models\Order;
-use App\Rules\RatingRule;
-use Illuminate\Http\Request;
 
 class DeliveryBoyReviewController extends Controller
 {
 
     use MessageTrait;
-
-    public function deliveryBoyLocation(Request $request,$category_id){
+    private $deliveryBoy;
+    private $category;
+    private $subCategory;
+    public function __construct(DeliveryBoy $deliveryBoy,Category $category,SubCategory $subCategory)
+    {
+        $this->deliveryBoy = $deliveryBoy;
+        $this->category = $category;
+        $this->subCategory = $subCategory;
+    }
+    public function deliveryBoyLocation(Request $request){
         $latitude = $request->input('latitude');
         $longitude = $request->input('longitude');
-        
+
         $query = DeliveryBoy::query();
 
         if (!empty($request->shop_id)) {
@@ -49,6 +60,70 @@ class DeliveryBoyReviewController extends Controller
         } else {
             return $this->errorResponse(trans('message.any-delivery-boy-yet'),200);
         }
+    }
+    
+    public function deliveryBoynearsetLocation(Request $request){
+        $latitude = $request->latitude;
+        $longitude = $request->longitude;
+        $min_price = $request->min_price;
+        $max_price = $request->max_price;
+
+        if($request->category_id == 1){
+            $category = $this->category->find($request->category_id);
+            $subCategory = $this->subCategory->find($request->sub_category_id);
+            $shops = $subCategory->shops;
+          
+            $shops = $subCategory->shops->filter(function ($shop) use ($max_price, $min_price) {
+                return  $shop->pivot->price >= $min_price &&  $shop->pivot->price <= $max_price;
+            });
+            return $shops;
+            $nearestDeliveryBoy = [];
+            $max_distance = $request->max_distance;
+
+            foreach($shops as $shop){
+                $shopDeliveryBoys = $shop->deliveryBoys->filter(function ($deliveryBoy) use ($category,$latitude,$longitude,$max_distance){
+                    $deliveryBoy->distance = $this->deliveryBoy->haversine($latitude, $longitude, $deliveryBoy->latitude, $deliveryBoy->longitude);
+
+                    return $deliveryBoy->category_id == $category->id && $deliveryBoy->is_offline == 0 && $deliveryBoy->is_approval == 1 && $deliveryBoy->distance <= $max_distance;
+                });
+                foreach($shopDeliveryBoys as $shopDeliveryBoy){
+                    array_push($nearestDeliveryBoy,$shopDeliveryBoy);
+                }
+            }
+
+            if ($nearestDeliveryBoy) {
+                return $this->returnData('data', ['nearestDeliveryBoy'=>$nearestDeliveryBoy]);
+            } else {
+                return $this->errorResponse(trans('message.any-delivery-boy-yet'),200);
+            }
+        } else {
+            $category = $this->category->find($request->category_id);
+            $deliveryBoys = 
+            Deliveryboy::whereHas('category', function ($query) use ($category) {
+                $query->where('id', $category->id);
+            })
+            ->where('is_approval', 1)
+            ->where('is_offline', 0)->get();
+            
+            foreach ($deliveryBoys as $deliveryBoy) {
+                $deliveryBoy->distance = $this->deliveryBoy->haversine($latitude, $longitude, $deliveryBoy->latitude, $deliveryBoy->longitude);
+            }
+            
+            $max_distance = $request->max_distance;
+          // return  gettype($deliveryBoys);
+            $nearestDeliveryBoy = $deliveryBoys->sortBy('distance')->filter(function ($deliveryBoy) use ($max_distance) {
+                return $deliveryBoy->distance <= $max_distance;
+            });
+
+            // return $nearestDeliveryBoy;
+
+            if (!$nearestDeliveryBoy->isEmpty()) {
+                return $this->returnData('data', ['nearestDeliveryBoy'=>$nearestDeliveryBoy]);
+            } else {
+                return $this->errorResponse(trans('message.any-delivery-boy-yet'),200);
+            }
+        }
+    
     }
 
     public function deliveryBoySearch(Request $request){

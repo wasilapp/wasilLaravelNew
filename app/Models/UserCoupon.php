@@ -12,6 +12,9 @@ use Illuminate\Database\Eloquent\Model;
 class UserCoupon extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'user_id', 'coupon_id'
+    ];
 
 
     public static function getForShop($userId,$shopId){

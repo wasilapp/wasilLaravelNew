@@ -24,19 +24,17 @@ class ForgotPasswordController extends Controller
 
         $user =DeliveryBoy::where('mobile','LIKE','%'.$request->mobile)->first();
           if(!$user){
-              return response(['message'=>"Number is  not exists"], 403);
+            return $this->errorResponse(['message'=>"Number is  not exists"], 403);
           }
 
        $user->password = Hash::make($request->get('password'));
-       
+
 
         if ($user->save()) {
-            return response(['message' => 'Your password reset done.'], 200);
+            return $this->returnMessage(['message' => 'Your password reset done.'],200);
         } else {
-            return response(['errors' => ['Something wrong']], 403);
-    //     }
-    }
-        
+            return $this->errorResponse(['errors' => ['Something wrong']], 403);
+        }
     }
 
 

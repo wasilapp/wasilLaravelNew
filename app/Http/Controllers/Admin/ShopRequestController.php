@@ -32,7 +32,7 @@ class ShopRequestController extends Controller
     }
 
 
-  
+
 
     public function index()
     {

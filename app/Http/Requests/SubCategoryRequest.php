@@ -26,8 +26,8 @@ class SubCategoryRequest extends FormRequest
         switch ($this->method()) {
             case 'PATCH':
                 $rules = [
-                    'title.en' => 'required|unique:categories,title->en,'.$this->id,
-                    'title.ar' => 'required|unique:categories,title->ar,'.$this->id,
+                    'title.en' => 'required|unique:sub_categories,title->en,'.$this->id,
+                    'title.ar' => 'required|unique:sub_categories,title->ar,'.$this->id,
                     'category' => 'required',
                     'price' => 'required',
                     // 'image' => 'required'
@@ -36,8 +36,8 @@ class SubCategoryRequest extends FormRequest
 
             default:
                 $rules = [
-                    'title.en' => 'required|unique:categories,title->en',
-                    'title.ar' => 'required|unique:categories,title->ar',
+                    'title.en' => 'required|unique:sub_categories,title->en',
+                    'title.ar' => 'required|unique:sub_categories,title->ar',
                     'category' => 'required',
                     'price' => 'required',
                     'image' => 'required'
@@ -55,7 +55,7 @@ class SubCategoryRequest extends FormRequest
             'title.en.unique' => 'This English title is already taken, you can edit',
             // 'image.required' => 'Please provide an image',
             'category.required' => 'Please enter a type',
-            'price.required' => 'Please enter a commesion',
+            'price.required' => 'Please enter a price',
         ];
     }
 }

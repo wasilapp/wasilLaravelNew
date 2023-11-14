@@ -2,17 +2,46 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\AppSetting;
 use App\Models\User;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Helpers\AppSetting;
+use App\Models\Admin;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class FCMController extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+    
+    public function updateDeviceToken(Request $request)
+    {
+        $admin = Admin::find(Auth::guard('admin')->user()->id);
+       //dd($admin);
+         $admin->update([
+            'fcm_token' => $request->token
+        ]);
+       // dd($admin);
+        return response()->json(['Token successfully stored.']);
+    
+    }
+    public function getLatestNotifications(Request $request)
+    {
+        if($user= Auth::user()){
+            $user= Auth::user();
+        } else {
+            $user = Auth::guard('admin')->user();
+        }
+        
 
+        $notifications =  $user->notifications()->latest()->limit(1)->get();
+        $unreadNotifications =  $user->unreadNotifications()->count();
+
+        return response()->json(['notifications' => $notifications , 'unreadNotifications' => $unreadNotifications ]);
+    }
+    
     public static function sendMessage($title,$body,$token,$screen="order",$data=null)
     {
 
@@ -67,8 +96,6 @@ class FCMController extends BaseController
         }
         return true;
     }
-
-
 
     public static function test()
     {

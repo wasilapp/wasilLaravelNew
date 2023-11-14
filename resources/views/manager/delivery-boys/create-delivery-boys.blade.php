@@ -37,7 +37,7 @@
                                         <div class="card-body">
                                             <h5 class="card-title text-center">{{ __('admin.profile_pic') }} <span class="text-danger">*</span></h5>
                                             <div class="form-group">
-                                                
+
                                                 <input type="file" name="profile_pic" id="image"
                                                     data-plugins="dropify" data-default-file="" />
                                                 <p class="text-muted text-center mt-2 mb-0">
@@ -102,8 +102,8 @@
                                                                 <label for="mobile">{{ __('admin.mobile') }} <span class="text-danger">*</span></label>
                                                                  <input type="text"
                                                                     class="form-control"
-                                                                    placeholder="+962"
-                                                                    value="+962" disabled >
+                                                                    placeholder="962"
+                                                                    value="962" disabled >
                                                                 <input type="text"
                                                                     class="form-control @if ($errors->has('mobile')) is-invalid @endif"
                                                                     id="mobile" placeholder="as 712345678"
@@ -129,7 +129,7 @@
                                                                 @endif
                                                             </div>
                                                         </div>
-                                                        
+
                                                                <div class="col-12 col-lg-6">
                                                             <div class="form-group mt-0">
                                                                 <label for="car_number">{{ __('admin.car_number') }} <span class="text-danger">*</span></label>
@@ -145,7 +145,7 @@
                                                             </div>
                                                         </div>
 
-                                                        
+
                                                     <div class="col-12 col-lg-6">
                                                 <div class="form-group mt-0">
                                                     <label for="category">{{__('manager.category')}} <span class="text-danger">*</span></label>
@@ -163,14 +163,14 @@
                                                         <label for="shop">{{__('admin.shops')}} ** for free driver don't select any shop </label>
                                                         <select class="form-control" name="shop_id" id="shop">
                                                             <option value =''>Select Category</option>
-                                                            
+
                                                         </select>
                                                     </div>
-                                                </div> 
+                                                </div>
                                                 @endif
                                                 </div>
 
-                                                   
+
                                                 </div>
                                             </div>
                                         </div>
@@ -207,7 +207,7 @@
                                 $('#shop').append('<option value="'+e.id+'">'+ e.name+' </option>');
                             });
                         }
-                       
+
                    }
             });
         });

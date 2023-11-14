@@ -22,7 +22,7 @@
                 </div>
             </div>
         </div>
-        
+
 
         <div class="row justify-content-center">
             <div class="col-12">
@@ -32,15 +32,6 @@
                               enctype="multipart/form-data">
                             @csrf
                             {{method_field('PATCH')}}
-                            {{-- @if ($errors->any())
-                                        <div class="alert alert-danger">
-                                            <ul>
-                                                @foreach ($errors->all() as $error)
-                                                    <li>{{ $error }}</li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                            @endif --}}
                             <input type="hidden" name="id" value="{{$category->id}}">
 
                             <div class="form-group custom-control custom-switch">
@@ -119,6 +110,46 @@
                                 @if($errors->has('delivery_fee'))
                                     <span class="invalid-feedback" role="alert">
                                             <strong>{{ $errors->first('delivery_fee') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="form-group mt-0">
+                                <label for="expedited_fees">{{ trans('message.expedited_fees') }}</label>
+                                <input type="number" step="0.01" class="form-control @if($errors->has('expedited_fees')) is-invalid @endif" id="expedited_fees" name="expedited_fees" value="{{$category->expedited_fees}}">
+                                @if($errors->has('expedited_fees'))
+                                    <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $errors->first('expedited_fees') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="form-group mt-0">
+                                <label for="scheduler_fees">{{ trans('message.scheduler_fees') }}</label>
+                                <input type="number" step="0.01" class="form-control @if($errors->has('scheduler_fees')) is-invalid @endif" id="scheduler_fees" name="scheduler_fees" value="{{$category->scheduler_fees}}">
+                                @if($errors->has('scheduler_fees'))
+                                    <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $errors->first('scheduler_fees') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="form-group mt-0">
+                                <label for="start_work_time">{{ trans('message.start_work_time') }}</label>
+                                <input type="time" step="0.01" class="form-control @if($errors->has('start_work_time')) is-invalid @endif" id="start_work_time" name="start_work_time" value="{{$category->start_work_time}}">
+                                @if($errors->has('start_work_time'))
+                                    <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $errors->first('start_work_time') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="form-group mt-0">
+                                <label for="end_work_time">{{ trans('message.end_work_time') }}</label>
+                                <input type="time" step="0.01" class="form-control @if($errors->has('end_work_time')) is-invalid @endif" id="end_work_time" name="end_work_time" value="{{$category->end_work_time}}">
+                                @if($errors->has('end_work_time'))
+                                    <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $errors->first('end_work_time') }}</strong>
                                     </span>
                                 @endif
                             </div>

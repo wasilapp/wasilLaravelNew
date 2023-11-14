@@ -60,7 +60,7 @@
                                     <tr>
                                         <td>
                                             <div>
-                                                <img src="{{ asset( $category->image_url) }}" style="object-fit: cover" alt="OOps"
+                                                <img src="{{ asset( $category->image_url) }}" style="object-fit: cover" alt="Image"
                                                      height="40px"
                                                      width="40px">
                                             </div>

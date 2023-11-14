@@ -31,11 +31,16 @@
                             <div class="float-right col-12" >
                                 <ul class="" id="statu">
                                     <a href="{{route('admin.orders.index')}}" class="{{ Route::currentRouteName() == 'admin.orders.index' ? 'active' : ''}}"> <li value="">All</li></a>
-                                    @for($i=1;$i<6;$i++)
-                                        <a href="{{route('admin.orders.status',$i)}}" class="{{ Request::is('*'.$i.'*') ? 'active' : ''}}"> 
+                                    @foreach ($statu as $statu_item)
+                                        <a href="{{route('admin.orders.status',$statu_item->id)}}" class="{{ Request::is('*'.$statu_item->id.'*') ? 'active' : ''}}">
+                                            <li value="{{$statu_item->id}}">{{$statu_item->title}}</li>
+                                        </a>
+                                    @endforeach
+                                    {{-- @for($i=1;$i<6;$i++)
+                                        <a href="{{route('admin.orders.status',$i)}}" class="{{ Request::is('*'.$i.'*') ? 'active' : ''}}">
                                         <li value="{{$i}}">{{\App\Models\Order::getTextFromStatus($i,2)}}</li>
                                         </a>
-                                    @endfor
+                                    @endfor --}}
                                 </ul>
                             </div>
                         </div>
@@ -54,6 +59,55 @@
                                 </form>
                             </div>
                         </div>
+                        <div class="table-responsive">
+                            {{-- @dd($orders) --}}
+                            <div class="float-right">
+                            {{ $orders->links() }}
+                            </div>
+                            <table class="table table-centered table-nowrap table-hover mb-0">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th>{{__('admin.order')}} ID</th>
+                                    <th>{{__('admin.date')}}</th>
+                                    <th>{{__('admin.order_type')}}</th>
+                                    <th>{{__('admin.shop')}}</th>
+                                    <th>{{__('admin.user_name')}}</th>
+                                    <th>{{__('admin.category')}}</th>
+                                    <th>{{__('admin.payment_method')}}</th>
+                                    <th>{{__('admin.total')}}</th>
+                                    <th style="width: 250px;">{{__('admin.order_status')}}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($orders as $order)
+                                    <tr>
+                                        <td><span class=" text-body font-weight-bold">#{{$order['id']}}</span></td>
+                                        <td> {{\Carbon\Carbon::parse($order['created_at'])->format('M d Y')}}
+                                            <small
+                                                class="text-muted">{{ \Carbon\Carbon::parse($order['created_at'])->format('h:i A')}}</small>
+                                        </td>
+                                        <td>{{$order['order_type']}}</td>
+                                        <td> {{$order['shop'] ? $order['shop']['name']: '-'}} </td>
+                                        <td> {{$order['user']['name']}} </td>
+                                        <td>{{ $order['category']['title']}}</td>
+                                        <td>{{\App\Models\Order::getTextFromPaymentType($order['orderPayment']['payment_type'])}}</td>
+                                        <td>$  {{round($order['total'], 2)}}</td>
+                                        <td><span>{{$order['statu']['title']}}</span></td>
+                                        {{-- <td>$  {{round($order['total'], 2)}}</td> --}}
+                                        {{-- <td>
+                                            @if(\App\Models\Order::isPaymentConfirm($order['status']))
+                                                <a href="{{route('admin.orders.show',$order['id'])}}"><span class="text-primary">{{\App\Models\Order::getTextFromStatus($order['status'],$order['order_type'])}}</span></a>
+                                            @else
+                                                <span
+                                                    class="text-danger">{{ \App\Models\Order::getTextFromStatus($order['status'],$order['order_type'])}}</span>
+                                            @endif
+                                        </td> --}}
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        {{--
                         <div class="table-responsive">
                             <div class="float-right">
                             {{ $orders->links() }}
@@ -96,12 +150,12 @@
                                 @endforeach
                                 </tbody>
                             </table>
-                        </div>
-                    </div> <!-- end card-body-->
-                </div> <!-- end card-->
+                        </div> --}}
+                    </div>
+                </div>
             </div>
         </div>
-    </div> <!-- container -->
+    </div>
 
 @endsection
 

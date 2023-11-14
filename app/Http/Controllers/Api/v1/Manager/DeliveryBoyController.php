@@ -104,6 +104,21 @@ class DeliveryBoyController extends Controller
 
     public function show($id)
     {
+        $deliveryBoyId = auth()->user()->id;
+        $deliveryBoy = $this->deliveryBoy
+            ->with([
+                'orders' => function($query) {
+                    $query->where('status', '>=', 4);
+                },
+                'orders.user',
+                'orders.shop',
+                'orders.category',
+                'orders.carts',
+                'orders.coupon',
+                'transactions'
+            ])
+            ->find($deliveryBoyId);
+        return $this->returnData('data', ['deliveryBoy' => $deliveryBoy]);
     }
 
 
@@ -170,7 +185,7 @@ class DeliveryBoyController extends Controller
         }catch(\Exception $e){
             Log::info($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
 
     }
@@ -180,26 +195,32 @@ class DeliveryBoyController extends Controller
     {
         try {
             DB::beginTransaction ();
-            $user = auth()->user();
-
+            // $user = auth()->user()->id;
             $deliveryBoy = $this->deliveryBoy->findOrFail($id);
             if (!$deliveryBoy) {
                 return $this->errorResponse(trans('message.deliveryBoy-not-found'),400);
             }
+            $numberOfOrders = $deliveryBoy->orders()->get();
             if ($deliveryBoy->is_approval == 2) {
-                if ($deliveryBoy->orders()->isEmpty()) {
+                if (!empty($numberOfOrders)) {
                     return $this->errorResponse(trans('message.deliveryBoy-has-orders'), 403);
+                }else{
+                    $deliveryBoy->ordersAssignToDelivery()->delete();
+                    $deliveryBoy->transactions()->delete();
+                    $deliveryBoy->delete();
                 }
+            }else{
+                $deliveryBoy->ordersAssignToDelivery()->delete();
+                $deliveryBoy->delete();
             }
-            $deliveryBoy->delete();
+
             DB::commit();
             return $this->returnMessage(trans('message.deliveryBoy-deleted-successfully'),204);
         }catch(\Exception $e){
             Log::info($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
-
     }
 
 
@@ -212,7 +233,7 @@ class DeliveryBoyController extends Controller
 
             if ($order) {
                 if ($order->delivery_boy_id) {
-                    return response(['errors' => ['Order has already assign delivery boy']], 403);
+                    return $this->errorResponse(['errors' => ['Order has already assign delivery boy']],403);
                 }
 
                 else {
@@ -228,12 +249,10 @@ class DeliveryBoyController extends Controller
                     return $delivery_boys;
                 }
             } else {
-                return response(['errors' => ['Something wrong']], 403);
+                return $this->errorResponse(['errors' => ['Something wrong']], 403);
             }
         }
-        return response(['errors' => ['You have not any shop yet']], 504);
-
-
+        return $this->errorResponse(['errors' => ['You have not any shop yet']], 504);
     }
 
     public function assign($order_id, $delivery_boy_id)
@@ -243,7 +262,7 @@ class DeliveryBoyController extends Controller
         $order = Order::find($order_id);
         if ($order) {
             if ($order->delivery_boy_id) {
-                return response(['errors' => ['Order has already assign delivery boy']], 403);
+                 return $this->errorResponse(['errors' => ['Order has already assign delivery boy']],403);
             } else {
                 $order->delivery_boy_id = $delivery_boy_id;
                 $deliveryBoy = DeliveryBoy::find($delivery_boy_id);
@@ -254,10 +273,10 @@ class DeliveryBoyController extends Controller
                 $user = User::find($order->user_id);
                 FCMController::sendMessage("Changed Order Status","Your order ready and wait for delivery boy",$user->fcm_token);
                 FCMController::sendMessage('New Order','Body for notification',$deliveryBoy->fcm_token);
-                return response(['message' => ['Delivery boy assigned']], 200);
+                return $this->returnMessage(['message' => ['Delivery boy assigned']],200);
             }
         } else {
-            return response(['errors' => ['Order not for yours']], 403);
+            return $this->errorResponse(['errors' => ['Order not for yours']],403);
         }
     }
 
@@ -265,10 +284,10 @@ class DeliveryBoyController extends Controller
         $shop =  auth()->user()->shop;
 
         if($shop) {
-            $shopDeliveryBoys = DeliveryBoy::where('shop_id', '=', $shop->id)->get();
-            $shopDeliveryBoysAcceptManager = DeliveryBoy::where('shop_id', '=', $shop->id)->where('is_approval', '=', 1)->get();
-            $shopDeliveryBoysAcceptAdmin = DeliveryBoy::where('shop_id', '=', $shop->id)->where('is_approval', '=', 2)->get();
-            $shopDeliveryBoysPending = DeliveryBoy::where('shop_id', '=', $shop->id)->where('is_approval', '=', 0)->get();
+            $shopDeliveryBoys = DeliveryBoy::where('shop_id', '=', $shop->id)->with('subCategory')->get();
+            $shopDeliveryBoysAcceptManager = DeliveryBoy::where('shop_id', '=', $shop->id)->where('is_approval', '=', 1)->with('subCategory')->get();
+            $shopDeliveryBoysAcceptAdmin = DeliveryBoy::where('shop_id', '=', $shop->id)->where('is_approval', '=', 2)->with('subCategory')->get();
+            $shopDeliveryBoysPending = DeliveryBoy::where('shop_id', '=', $shop->id)->where('is_approval', '=', 0)->with('subCategory')->get();
             return $this->returnData('data', [
                 'allShopDeliveryBoys'=>$shopDeliveryBoys,
                 'shopDeliveryBoysAcceptManager'=>$shopDeliveryBoysAcceptManager,
@@ -282,7 +301,7 @@ class DeliveryBoyController extends Controller
     public function manage($id){
         $shop = auth()->user()->shop;
         if(!$shop){
-            return response(['errors' => ['You have not any shop yet']], 504);
+            return $this->errorResponse(trans('message.any-shop-yet'), 200);
         }
 
         $deliveryBoy = DeliveryBoy::find($id);
@@ -291,14 +310,14 @@ class DeliveryBoyController extends Controller
         elseif ($deliveryBoy->shop_id == $shop->id){
             $deliveryBoy->shop_id = null;
         }else{
-            return response(['errors' => ['You can\'t allocate this delivery boy']], 403);
+            return $this->errorResponse(['errors' => ['You can\'t allocate this delivery boy']], 403);
 
         }
         if($deliveryBoy->save()){
-            return response(['message' => ['Allocation successful']], 200);
+            return $this->returnMessage(['message' => ['Allocation successful']],200);
 
         }else{
-            return response(['errors' => ['Something wrong']], 403);
+            return $this->errorResponse(['errors' => ['Something wrong']], 403);
 
         }
     }
@@ -325,7 +344,7 @@ class DeliveryBoyController extends Controller
         }catch(\Exception $e){
             Log::error($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
 
     }
@@ -340,7 +359,7 @@ class DeliveryBoyController extends Controller
         }catch(\Exception $e){
             Log::error($e->getMessage());
             DB::rollBack();
-            return response(['errors' => [$e->getMessage()]], 402);
+            return $this->returnError('400', $e->getMessage());
         }
 
     }

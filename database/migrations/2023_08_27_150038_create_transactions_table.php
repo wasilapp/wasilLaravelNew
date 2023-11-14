@@ -20,7 +20,8 @@ return new class extends Migration
             $table->double('total');
             $table->string('from_date', 250);
             $table->string('to_date', 250);
-            $table->string('status', 250);
+            $table->string('time', 250)->nullable();
+            $table->string('status', 250)->default('paid');
             $table->timestamps();
         });
     }
